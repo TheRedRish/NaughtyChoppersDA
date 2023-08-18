@@ -1,0 +1,106 @@
+﻿@page "/user-login"
+@using NaughtyChoppersDA.Globals.Utils;
+@using NaughtyChoppersDA.Services
+@inject IUserService UserService
+
+<h3>Login</h3>
+
+<div class="container d-flex justify-content-center align-items-center vh-100">
+    <div class="card p-4">
+        <div class="form-group">
+            <label>Username</label>
+            <div class="position-relative">
+                <input class="form-control" @bind="@Username"/>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Password</label>
+            <div class="position-relative">
+                <input type="password" class="form-control" @bind="@Password"/>
+            </div>
+        </div>
+
+        <button class="btn btn-primary btn-block" @onclick="LoginUser">Login</button>
+        @if (!LoginSuccessful)
+        {
+            <div class="invalid-tooltip">
+                <p class="invalid-tooltip--text">@ErrorMessage</p>
+            </div>
+        }
+    </div>
+</div>
+<style>
+    /* Custom styling for tooltips */
+    .invalid-tooltip {
+        position: absolute;
+        top: 50%;
+        left: 100%;
+        margin-left: 1em;
+        padding: 0.25rem 0.5rem;
+        color: black;
+        line-height: 1.6;
+        text-align: left;
+        white-space: nowrap;
+        transform: translateY(-50%);
+        transition: all .15s ease-in-out;
+        max-width: unset;
+    }
+
+        .invalid-tooltip::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: 100%;
+            width: 0;
+            height: 0;
+            border: 0.5em solid transparent;
+            border-right-color: rgba(220,53,69,.9);
+            transform: translateY(-50%);
+        }
+
+    .invalid-tooltip--text {
+        margin-bottom: .3rem;
+    }
+
+        .invalid-tooltip--text:last-of-type {
+            margin-bottom: 0;
+        }
+
+        .invalid-tooltip--text::before {
+            content: "\2022"; /* Unicode character for a bullet point (dot) */
+            margin-right: 5px;
+        }
+
+    .form-group--confirm-password {
+        margin-bottom: 24px;
+    }
+</style>
+
+@code {
+    private string Username;
+    private string Password;
+
+    private bool LoginSuccessful;
+    private string ErrorMessage;
+
+    private void LoginUser()
+    {
+        string response = UserService.Login(Username, StringUtils.HashStringToSHA512(Password));
+        if (response != "Success")
+        {
+            LoginSuccessful = false;
+            switch(response)
+            {
+                case "User not found":
+                    ErrorMessage = "Username or password is incorrect!";
+                    break;
+                default:
+                    ErrorMessage = "Something went wrong, please try again later!";
+                    break;
+            }
+            return;
+        }
+        NavigationManager.NavigateTo("/");
+    }
+}

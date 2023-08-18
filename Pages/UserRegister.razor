@@ -1,0 +1,239 @@
+﻿@page "/user-register"
+@using NaughtyChoppersDA.Globals.Utils;
+@using NaughtyChoppersDA.Services
+@inject IUserService UserService
+
+<h3>Create User</h3>
+
+<div class="container d-flex justify-content-center align-items-center vh-100">
+    <div class="card p-4">
+        <div class="form-group">
+            <label>Username</label>
+            <div class="position-relative">
+                <input class="form-control @GetUsernameValidationClass()" @bind="@Username" @onblur="CheckUsernameExistence" />
+                @if (UsernameExists)
+                {
+                    <div class="invalid-tooltip">
+                        @foreach (string validationMessage in UsernameValidationMessages)
+                        {
+                            <p class="invalid-tooltip--text">@validationMessage</p>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Password</label>
+            <div class="position-relative">
+                <input type="password" class="form-control @GetPasswordValidationClass()" @bind="@Password" @onblur="UpdatePasswordValidation" />
+                @if (!PasswordValid)
+                {
+                    <div class="invalid-tooltip">
+                        @foreach (string validationMessage in PasswordValidationMessages)
+                        {
+                            <p class="invalid-tooltip--text">@validationMessage</p>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="form-group form-group--confirm-password">
+            <label>Confirm Password</label>
+            <div class="position-relative">
+                <input type="password" class="form-control @GetConfirmPasswordValidationClass()" @bind="@ConfirmPassword" @onblur="UpdatePasswordValidation" />
+                @if (!ConfirmPasswordValid)
+                {
+                    <div class="invalid-tooltip">
+                        @foreach (string validationMessage in ConfirmPasswordValidationMessages)
+                        {
+                            <p class="invalid-tooltip--text">@validationMessage</p>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+
+        <button class="btn btn-primary btn-block" @onclick="CreateUser">Create User</button>
+    </div>
+</div>
+<style>
+    /* Custom styling for tooltips */
+    .invalid-tooltip {
+        position: absolute;
+        top: 50%;
+        left: 100%;
+        margin-left: 1em;
+        padding: 0.25rem 0.5rem;
+        color: black;
+        line-height: 1.6;
+        text-align: left;
+        white-space: nowrap;
+        transform: translateY(-50%);
+        transition: all .15s ease-in-out;
+        max-width: unset;
+    }
+
+        .invalid-tooltip::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: 100%;
+            width: 0;
+            height: 0;
+            border: 0.5em solid transparent;
+            border-right-color: rgba(220,53,69,.9);
+            transform: translateY(-50%);
+        }
+
+    .invalid-tooltip--text {
+        margin-bottom: .3rem;
+    }
+
+        .invalid-tooltip--text:last-of-type {
+            margin-bottom: 0;
+        }
+
+        .invalid-tooltip--text::before {
+            content: "\2022"; /* Unicode character for a bullet point (dot) */
+            margin-right: 5px;
+        }
+
+    .form-group--confirm-password {
+        margin-bottom: 24px;
+    }
+</style>
+
+@code {
+    private string Username;
+    private string Password;
+    private string ConfirmPassword;
+
+
+    private List<string> UsernameValidationMessages = new();
+    private List<string> PasswordValidationMessages = new();
+    private List<string> ConfirmPasswordValidationMessages = new();
+    private bool UsernameExists;
+    private bool PasswordValid;
+    private bool ConfirmPasswordValid;
+
+    private void CheckUsernameExistence()
+    {
+        UsernameValidationMessages.Clear();
+
+        if (string.IsNullOrWhiteSpace(Username))
+        {
+            return;
+        }
+
+        UsernameExists = UserService.DoesUserExist(Username);
+
+        if (UsernameExists)
+        {
+            UsernameValidationMessages.Add("Username already in use");
+        }
+    }
+    private void PasswordValidation()
+    {
+        PasswordValidationMessages.Clear();
+        int minLength = 8;
+
+        if (string.IsNullOrWhiteSpace(Password))
+        {
+            return;
+        }
+
+        if (Password.Length < minLength)
+        {
+            PasswordValidationMessages.Add("Minimum 8 characters");
+        }
+        if (!StringUtils.ContainsUpperAndLowerCases(Password))
+        {
+            PasswordValidationMessages.Add("Must contain both upper and lower case letters");
+        }
+
+
+        if (PasswordValidationMessages.Count == 0)
+        {
+            PasswordValid = true;
+        }
+        else
+        {
+            PasswordValid = false;
+        }
+    }
+    private void ConfirmPasswordValidation()
+    {
+        ConfirmPasswordValidationMessages.Clear();
+
+        if (string.IsNullOrWhiteSpace(ConfirmPassword))
+        {
+            return;
+        }
+
+        if (Password != ConfirmPassword)
+        {
+            ConfirmPasswordValid = false;
+            ConfirmPasswordValidationMessages.Add("Dine Passwords er ens!");
+        }
+        else
+        {
+            ConfirmPasswordValid = true;
+        }
+    }
+    private void UpdatePasswordValidation()
+    {
+        PasswordValidation();
+        ConfirmPasswordValidation();
+    }
+    private string GetUsernameValidationClass()
+    {
+        if (string.IsNullOrWhiteSpace(Username))
+        {
+            return "";
+        }
+
+        if (UsernameExists)
+        {
+            return "is-invalid";
+        }
+        return "is-valid";
+    }
+    private string GetPasswordValidationClass()
+    {
+        if (string.IsNullOrWhiteSpace(Password))
+        {
+            return "";
+        }
+
+        if (!PasswordValid)
+        {
+            return "is-invalid";
+        }
+        return "is-valid";
+    }
+    private string GetConfirmPasswordValidationClass()
+    {
+        if (string.IsNullOrWhiteSpace(ConfirmPassword))
+        {
+            return "";
+        }
+
+        if (!ConfirmPasswordValid)
+        {
+            return "is-invalid";
+        }
+        return "is-valid";
+    }
+
+    private void CreateUser()
+    {
+        if (UsernameExists || !PasswordValid || !ConfirmPasswordValid)
+        {
+            return;
+        }
+        UserService.CreateUser(Username, StringUtils.HashStringToSHA512(Password));
+        NavigationManager.NavigateTo("/");
+    }
+}
