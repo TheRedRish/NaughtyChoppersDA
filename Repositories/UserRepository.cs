@@ -68,6 +68,7 @@ namespace NaughtyChoppersDA.Repositories
                 throw new UserException("Unknown error");
             }
         }
+
         public void UpdateUser(User user)
         {
             throw new NotImplementedException();
@@ -126,14 +127,15 @@ namespace NaughtyChoppersDA.Repositories
                     {
                         if (reader.Read())
                         {
-                            return (bool)reader["UserExists"];
+                            return reader.GetInt32(0) == 1 ? true : false;
                         }
                     }
                 }
                 return false;
             }
-            catch (SqlException)
-            {           
+            catch (SqlException ex)
+            {
+                string error = ex.Message;
                 throw new UserException("Database error");                
             }
             catch (Exception)
