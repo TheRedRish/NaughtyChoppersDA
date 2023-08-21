@@ -6,8 +6,10 @@ namespace NaughtyChoppersDA.Services
     {
         Profile? Profile { get; set; }
         User GetProfile(Guid id);
-        string CreateProfile(Profile profile);
+        string CreateProfile(Profile profile, User user);
         string UpdateProfile(Profile profile);
         string DeleteProfile(Guid id);
+        List<HelicopterModel> GetAllHelicopterModels();
+        string? GetCityByPostalCode(string postalCode);
     }
 }

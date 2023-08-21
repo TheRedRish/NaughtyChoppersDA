@@ -1,0 +1,126 @@
+﻿@page "/create-profile"
+@using NaughtyChoppersDA.Globals.Utils;
+@using NaughtyChoppersDA.Services;
+@using NaughtyChoppersDA.Entities;
+@inject IProfileService ProfileService
+@inject IUserService UserService
+
+<h3>Create Profile</h3>
+
+<EditForm Model="profile" OnValidSubmit="@HandleSubmit">
+    <DataAnnotationsValidator />
+
+    <div class="form-group">
+        <label for="Name">Name:</label>
+        <InputText id="Name" @bind-Value="profile.Name" />
+    </div>
+
+    <div class="form-group">
+        <label for="DateOfBirth">Date of Birth:</label>
+        <InputDate id="DateOfBirth" @bind-Value="profile.DateOfBirth" />
+    </div>
+
+    <div class="form-group">
+        <label for="HelicopterModel">Helicopter Model:</label>
+        <InputSelect id="HelicopterModel" @bind-Value="profile.Model">
+            @foreach (var model in helicopterModels)
+            {
+                <option value="@model.Id">@model.Name</option>
+            }
+        </InputSelect>
+    </div>
+
+    <div class="form-group">
+        <label for="ProfileImage">Profile Image:</label>
+        <InputFile id="ProfileImage" OnChange="HandleFileSelection" />
+    </div>
+
+    <div class="form-group">
+        <label for="PostalCode">Postal Code:</label>
+        <InputText id="PostalCode" @bind-Value="profile.PostalCode" @onblur="FetchCity" />
+    </div>
+
+    <div class="form-group">
+        <label for="City">City:</label>
+        <InputText id="City" @bind-Value="profile.City" />
+    </div>
+
+    <div class="form-group">
+        <label for="Interests">Interests (Max 3):</label>
+        <InputSelect id="Interests" @bind-Value="profile.Interests" multiple>
+            @foreach (var interest in interests)
+            {
+                <option value="@interest">@interest</option>
+            }
+        </InputSelect>
+    </div>
+
+    <button type="submit">Create Profile</button>
+</EditForm>
+
+@code {
+    public Profile profile { get; set; }
+    public List<HelicopterModel> helicopterModels = new List<HelicopterModel>();
+    public List<HobbyInterest> interests = new List<HobbyInterest>();
+    private DateTime DefaultDate = new DateTime(year: 1967, month: 7, day: 26);
+
+    protected override void OnInitialized()
+    {
+        // TODO: Add check if user is logged in.
+        interests.Add(new HobbyInterest{Name = "Skyhigh dating", Id = 1});
+        profile = new();
+        helicopterModels = ProfileService.GetAllHelicopterModels();
+    }
+
+
+    private void FetchCity()
+    {
+        if (!string.IsNullOrEmpty(profile.PostalCode))
+        {
+            profile.City = ProfileService.GetCityByPostalCode(profile.PostalCode);
+        }
+    }
+
+    private async Task HandleFileSelection(InputFileChangeEventArgs e)
+    {
+        var selectedFile = e.File;
+
+        // Check if a file was selected
+        if (selectedFile != null)
+        {
+            // Get the file extension
+            var fileExtension = Path.GetExtension(selectedFile.Name)?.ToLowerInvariant();
+
+            // Check if the file extension is allowed
+            if (fileExtension == ".jpg" || fileExtension == ".jpeg" || fileExtension == ".png" || fileExtension == ".gif")
+            {
+                // Convert the selected file to a byte array
+                using (var memoryStream = new MemoryStream())
+                {
+                    await selectedFile.OpenReadStream().CopyToAsync(memoryStream);
+                    var imageDataBytes = memoryStream.ToArray();
+
+                    // Now you have the image data as a byte array (imageDataBytes)
+
+                    // You can set the byte array to the profile's image property
+                    profile.ProfileImage = imageDataBytes;
+
+                    // You can also handle storing the byte array in your database
+                }
+            }
+            else
+            {
+                // Handle invalid file extension (show a message, reset input, etc.)
+            }
+        }
+    }
+
+    private void HandleSubmit()
+    {
+        if (UserService.User != null)
+        {
+            ProfileService.CreateProfile(profile, UserService.User);
+        }
+        // Handle profile creation submission
+    }
+}

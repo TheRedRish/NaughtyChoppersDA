@@ -49,17 +49,19 @@ namespace NaughtyChoppersDA.Services
             try
             {
                 User = _repository.GetUser(userName, password);
+
+                if (User == null)
+                {
+                    return "User not found";
+                }
+                return "Success";
             }
             catch(UserException ex)
             {
                 return ex.Message;
             }
 
-            if (User == null)
-            {
-                return "User not found";
-            }
-            return "Success";
+
         }
 
         public void LogOut()

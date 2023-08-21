@@ -1,24 +1,24 @@
 ﻿using Microsoft.AspNetCore.Mvc.RazorPages;
 using NaughtyChoppersDA.Globals.Utils;
+using NaughtyChoppersDA.Repositories;
 
 namespace NaughtyChoppersDA.Entities
 {
     public class Profile
     {
         private int? _age;
+        private DateTime _dateOfBirth;
 
         public Guid? ProfileId { get; set; }
         public string? Name { get; set; }
-        public DateOnly? DateOfBirth
+        public DateTime DateOfBirth
         {
-            get => DateOfBirth;
+            get => _dateOfBirth;
             set
             {
-                DateOfBirth = value;
-                if (DateOfBirth != null)
-                {
-                    _age = DateUtils.CalculateAge((DateOnly)DateOfBirth);
-                }
+                _dateOfBirth = value;
+                _age = DateUtils.CalculateAge(value);
+
             }
         }
         public int? Age { get => _age; set => _age = value; }

@@ -1,6 +1,7 @@
 ﻿@page "/user-login"
 @using NaughtyChoppersDA.Globals.Utils;
-@using NaughtyChoppersDA.Services
+@using NaughtyChoppersDA.Services;
+@using NaughtyChoppersDA.Entities;
 @inject IUserService UserService
 
 <h3>Login</h3>
@@ -101,6 +102,7 @@
             }
             return;
         }
+        LoginSuccessful = true;
         NavigationManager.NavigateTo("/");
     }
 }

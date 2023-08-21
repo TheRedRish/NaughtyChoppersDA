@@ -33,6 +33,8 @@ namespace NaughtyChoppersDA.Repositories
 
                     command.ExecuteNonQuery();
                 }
+
+                profile = GetProfile(user.UserId);
            
                 AddHobbyInterestsToProfile(profile.ProfileId, profile.Interests!);
                 AddHelicopterModelInterestsToProfile(profile.ProfileId, profile.HelicopterModelInterests!);
@@ -70,8 +72,7 @@ namespace NaughtyChoppersDA.Repositories
                         {
                             profile.ProfileId = reader.GetGuid(0);
                             profile.Name = reader.GetString(1);
-                            DateTime sqlDate = reader.GetDateTime(2);
-                            profile.DateOfBirth = new DateOnly(sqlDate.Year, sqlDate.Month, sqlDate.Day);
+                            profile.DateOfBirth = reader.GetDateTime(2);
                             profile.Model = GetHelicopterModel(reader.GetInt32(3));
                             if (!reader.IsDBNull(4))
                             {
@@ -123,7 +124,7 @@ namespace NaughtyChoppersDA.Repositories
 
         public string? GetCityByPostalCode(string postalCode)
         {
-            string? postcode = null;
+            string? city = null;
             try
             {
                 using (SqlConnection connection = new SqlConnection(myDbConnectionString))
@@ -137,7 +138,7 @@ namespace NaughtyChoppersDA.Repositories
                     {
                         if (reader.Read())
                         {
-                            postcode = reader.GetString(0);
+                            city = reader.GetString(0);
                         }
                     }
                 }
@@ -151,7 +152,7 @@ namespace NaughtyChoppersDA.Repositories
                 throw new UserException("Unknown error");
             }
 
-            return postcode;
+            return city;
         }
 
         #region HobbyInterests

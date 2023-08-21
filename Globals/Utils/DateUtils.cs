@@ -2,7 +2,7 @@
 {
     public static class DateUtils
     {
-        public static int CalculateAge(DateOnly date)
+        public static int CalculateAge(DateTime date)
         {
             DateOnly currentDate = DateOnly.FromDateTime(DateTime.Now);
             int age = currentDate.Year - date.Year;
