@@ -22,7 +22,7 @@ namespace NaughtyChoppersDA.Repositories
                 {
                     connection.Open();
 
-                    SqlCommand command = new SqlCommand("AddUser", connection);
+                    SqlCommand command = new SqlCommand("CreateProfile", connection);
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.AddWithValue("@Name", SqlDbType.NVarChar).Value = profile.Name;
                     command.Parameters.AddWithValue("@BirthDate", SqlDbType.Date).Value = profile.DateOfBirth;
@@ -36,8 +36,8 @@ namespace NaughtyChoppersDA.Repositories
 
                 profile = GetProfile(user.UserId);
            
-                AddHobbyInterestsToProfile(profile.ProfileId, profile.Interests!);
-                AddHelicopterModelInterestsToProfile(profile.ProfileId, profile.HelicopterModelInterests!);
+                //AddHobbyInterestsToProfile(profile.ProfileId, profile.Interests!);
+                //AddHelicopterModelInterestsToProfile(profile.ProfileId, profile.HelicopterModelInterests!);
             }
             catch (SqlException)
             {
@@ -63,7 +63,7 @@ namespace NaughtyChoppersDA.Repositories
                 {
                     connection.Open();
 
-                    SqlCommand command = new SqlCommand("GetProfile", connection);
+                    SqlCommand command = new SqlCommand("GetProfileByUserId", connection);
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.AddWithValue("@UserId", SqlDbType.UniqueIdentifier).Value = userId;
                     using (SqlDataReader reader = command.ExecuteReader())
@@ -73,7 +73,8 @@ namespace NaughtyChoppersDA.Repositories
                             profile.ProfileId = reader.GetGuid(0);
                             profile.Name = reader.GetString(1);
                             profile.DateOfBirth = reader.GetDateTime(2);
-                            profile.Model = GetHelicopterModel(reader.GetInt32(3));
+                            profile.Model = new();
+                            profile.Model.Id = reader.GetInt32(3);
                             if (!reader.IsDBNull(4))
                             {
                                 long bytesRead;

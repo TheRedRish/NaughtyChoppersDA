@@ -10,6 +10,7 @@ namespace NaughtyChoppersDA.Services
         string UpdateProfile(Profile profile);
         string DeleteProfile(Guid id);
         List<HelicopterModel> GetAllHelicopterModels();
+        List<HobbyInterest>GetAllHobbyInterests();
         string? GetCityByPostalCode(string postalCode);
     }
 }

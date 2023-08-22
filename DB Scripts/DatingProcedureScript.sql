@@ -230,3 +230,14 @@ DELETE FROM ProfileInformation
 WHERE Id = @ProfileIdToDelete;
 END
 GO
+
+GO
+CREATE PROCEDURE GetProfileByUserId(
+@UserId UNIQUEIDENTIFIER
+)
+AS
+BEGIN
+SELECT * FROM ProfileInformation
+WHERE UserId = @UserId
+END
+GO

@@ -189,6 +189,6 @@
             return;
         }
         UserService.CreateUser(Username, StringUtils.HashStringToSHA512(Password));
-        NavigationManager.NavigateTo("/");
+        NavigationManager.NavigateTo("/user-login");
     }
 }

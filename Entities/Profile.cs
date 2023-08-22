@@ -27,6 +27,7 @@ namespace NaughtyChoppersDA.Entities
         public string? PostalCode { get; set; }
         public string? City { get; set; }
         public List<HobbyInterest>? Interests { get; set; }
+        public HobbyInterest HobbyInterest { get; set; }
         public List<HelicopterModel>? HelicopterModelInterests { get; set; }
     }
 }

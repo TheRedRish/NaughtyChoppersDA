@@ -1,5 +1,6 @@
 ﻿using NaughtyChoppersDA.Entities;
 using NaughtyChoppersDA.Repositories;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace NaughtyChoppersDA.Services
 {
@@ -31,6 +32,11 @@ namespace NaughtyChoppersDA.Services
         public List<HelicopterModel> GetAllHelicopterModels()
         {
             return _repository.GetAllHelicoptersModels();
+        }
+
+        public List<HobbyInterest> GetAllHobbyInterests()
+        {
+            return _repository.GetAllHobbyInterests();            
         }
 
         public string? GetCityByPostalCode(string postalCode)

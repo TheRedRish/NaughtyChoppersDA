@@ -5,73 +5,92 @@
 @inject IProfileService ProfileService
 @inject IUserService UserService
 
-<h3>Create Profile</h3>
+@if (UserService.User != null)
+{
+    <h3>Create Profile</h3>
 
-<EditForm Model="profile" OnValidSubmit="@HandleSubmit">
-    <DataAnnotationsValidator />
+    <EditForm Model="profile" OnValidSubmit="@HandleSubmit">
+        <DataAnnotationsValidator />
 
-    <div class="form-group">
-        <label for="Name">Name:</label>
-        <InputText id="Name" @bind-Value="profile.Name" />
-    </div>
+        <div class="form-group">
+            <label for="Name">Name:</label>
+            <InputText id="Name" @bind-Value="profile.Name" />
+        </div>
 
-    <div class="form-group">
-        <label for="DateOfBirth">Date of Birth:</label>
-        <InputDate id="DateOfBirth" @bind-Value="profile.DateOfBirth" />
-    </div>
+        <div class="form-group">
+            <label for="DateOfBirth">Date of Birth:</label>
+            <InputDate id="DateOfBirth" @bind-Value="profile.DateOfBirth" />
+        </div>
 
-    <div class="form-group">
-        <label for="HelicopterModel">Helicopter Model:</label>
-        <InputSelect id="HelicopterModel" @bind-Value="profile.Model">
-            @foreach (var model in helicopterModels)
-            {
-                <option value="@model.Id">@model.Name</option>
-            }
-        </InputSelect>
-    </div>
+        <div class="form-group">
+            <label for="HelicopterModel">Helicopter Model:</label>
+            <InputSelect id="HelicopterModel" @bind-Value="profile.Model.Id">
+                @foreach (var model in helicopterModels)
+                {
+                    <option value="@model.Id">@model.Name</option>
+                }
+            </InputSelect>
+        </div>
 
-    <div class="form-group">
-        <label for="ProfileImage">Profile Image:</label>
-        <InputFile id="ProfileImage" OnChange="HandleFileSelection" />
-    </div>
+        <div class="form-group">
+            <label for="ProfileImage">Profile Image:</label>
+            <InputFile id="ProfileImage" OnChange="HandleFileSelection" />
+        </div>
 
-    <div class="form-group">
-        <label for="PostalCode">Postal Code:</label>
-        <InputText id="PostalCode" @bind-Value="profile.PostalCode" @onblur="FetchCity" />
-    </div>
+        <div class="form-group">
+            <label for="PostalCode">Postal Code:</label>
+            <InputText id="PostalCode" @bind-Value="profile.PostalCode" @onblur="FetchCity" />
+        </div>
 
-    <div class="form-group">
-        <label for="City">City:</label>
-        <InputText id="City" @bind-Value="profile.City" />
-    </div>
+        <div class="form-group">
+            <label for="City">City:</label>
+            <InputText id="City" @bind-Value="profile.City" />
+        </div>
+        @*@for (int i = 0; i < chosenHobbyInterests.Count(); i++)
+        {
+            <div class="form-group">
+                <label for="Interests">Interests:</label>
+                <InputSelect id="Interests" @bind-Value="chosenHobbyInterests[i].Id">
+                    <option value="0">Select Option</option>
+                    @foreach (var interest in interests)
+                    {
+                        <option value="@interest.Id">@interest.Name</option>
+                    }
+                </InputSelect>
+            </div>
+        }*@
+        <button type="submit">Create Profile</button>
 
-    <div class="form-group">
-        <label for="Interests">Interests (Max 3):</label>
-        <InputSelect id="Interests" @bind-Value="profile.Interests" multiple>
-            @foreach (var interest in interests)
-            {
-                <option value="@interest">@interest</option>
-            }
-        </InputSelect>
-    </div>
-
-    <button type="submit">Create Profile</button>
-</EditForm>
+    </EditForm>
+}
 
 @code {
-    public Profile profile { get; set; }
+    public Profile profile = new();
     public List<HelicopterModel> helicopterModels = new List<HelicopterModel>();
     public List<HobbyInterest> interests = new List<HobbyInterest>();
+    List<HobbyInterest> chosenHobbyInterests = new List<HobbyInterest>();
+    private int amountAllowedInterests = 3;
     private DateTime DefaultDate = new DateTime(year: 1967, month: 7, day: 26);
 
     protected override void OnInitialized()
     {
-        // TODO: Add check if user is logged in.
-        interests.Add(new HobbyInterest{Name = "Skyhigh dating", Id = 1});
-        profile = new();
-        helicopterModels = ProfileService.GetAllHelicopterModels();
-    }
+        if (UserService.User == null)
+        {
+            NavigationManager.NavigateTo("/user-login");
+        }
 
+        profile.Model = new();
+        // Add number of allowed interests in list to be filled
+        for (int i = 0; i < amountAllowedInterests; i++)
+        {
+            chosenHobbyInterests.Add(new HobbyInterest());
+        }
+
+        profile.DateOfBirth = DefaultDate;
+        interests = ProfileService.GetAllHobbyInterests();
+        helicopterModels = ProfileService.GetAllHelicopterModels();
+
+    }
 
     private void FetchCity()
     {
@@ -117,10 +136,13 @@
 
     private void HandleSubmit()
     {
+        //if (profile.Interests != null && profile.HobbyInterest != null)
+        //{
+        //    profile.Interests.Add(profile.HobbyInterest);
+        //}
         if (UserService.User != null)
         {
             ProfileService.CreateProfile(profile, UserService.User);
         }
-        // Handle profile creation submission
     }
 }
