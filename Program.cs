@@ -20,7 +20,7 @@ namespace NaughtyChoppersDA
 
             AccessToDb.ConnectionString = builder.Configuration.GetConnectionString("NaughtyChoppersDB");
 
-            builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddSingleton<IUserService, UserService>();
             builder.Services.AddScoped<IProfileService, ProfileService>();
 
             builder.Services.AddTransient<IUserRepository, UserRepository>();
