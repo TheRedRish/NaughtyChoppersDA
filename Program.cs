@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using MudBlazor.Services;
 using NaughtyChoppersDA.Data;
 using NaughtyChoppersDA.Globals;
 using NaughtyChoppersDA.Repositories;
@@ -15,6 +16,7 @@ namespace NaughtyChoppersDA
 
             // Add services to the container.
             builder.Services.AddRazorPages();
+            builder.Services.AddMudServices();
             builder.Services.AddServerSideBlazor();
             builder.Services.AddSingleton<WeatherForecastService>();
 

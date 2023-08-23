@@ -13,20 +13,16 @@ namespace NaughtyChoppersDA.Services
         }
         public Profile? Profile { get; set; }
 
-        public bool CreateProfile(string userName, string password)
-        {
-            throw new NotImplementedException();
-        }
-
         public string CreateProfile(Profile profile, User user)
         {
             _repository.CreateProfile(profile, user);
             return "Succes";
         }
 
-        public string DeleteProfile(Guid id)
+        public string DeleteProfile(Guid profileId)
         {
-            throw new NotImplementedException();
+            _repository.DeleteProfile(profileId);
+            return "Succes";
         }
 
         public List<HelicopterModel> GetAllHelicopterModels()
@@ -44,9 +40,9 @@ namespace NaughtyChoppersDA.Services
             return _repository.GetCityByPostalCode(postalCode);
         }
 
-        public User GetProfile(Guid id)
+        public Profile GetProfile(Guid userId)
         {
-            throw new NotImplementedException();
+            return _repository.GetProfile(userId);
         }
 
         public string UpdateProfile(Profile profile)

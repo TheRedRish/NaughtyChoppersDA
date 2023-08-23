@@ -26,8 +26,7 @@ namespace NaughtyChoppersDA.Entities
         public byte[]? ProfileImage { get; set; }
         public string? PostalCode { get; set; }
         public string? City { get; set; }
-        public List<HobbyInterest>? Interests { get; set; }
-        public HobbyInterest HobbyInterest { get; set; }
+        public List<HobbyInterest>? HobbyInterests { get; set; }
         public List<HelicopterModel>? HelicopterModelInterests { get; set; }
     }
 }

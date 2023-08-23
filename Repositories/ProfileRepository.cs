@@ -34,10 +34,10 @@ namespace NaughtyChoppersDA.Repositories
                     command.ExecuteNonQuery();
                 }
 
-                profile = GetProfile(user.UserId);
-           
-                //AddHobbyInterestsToProfile(profile.ProfileId, profile.Interests!);
-                //AddHelicopterModelInterestsToProfile(profile.ProfileId, profile.HelicopterModelInterests!);
+                profile.ProfileId = GetProfileId(user.UserId);
+
+                AddHobbyInterestsToProfile(profile.ProfileId, profile.HobbyInterests!);
+                AddHelicopterModelInterestsToProfile(profile.ProfileId, profile.HelicopterModelInterests!);
             }
             catch (SqlException)
             {
@@ -51,7 +51,26 @@ namespace NaughtyChoppersDA.Repositories
 
         public void DeleteProfile(Guid? profileId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(myDbConnectionString))
+                {
+                    connection.Open();
+
+                    SqlCommand command = new SqlCommand("DeleteProfile", connection);
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@ProfileIdToDelete", SqlDbType.UniqueIdentifier).Value = profileId;
+                    command.ExecuteNonQuery();
+                }
+            }
+            catch (SqlException)
+            {
+                throw new UserException("Database error");
+            }
+            catch (Exception)
+            {
+                throw new UserException("Unknown error");
+            }
         }
 
         public Profile GetProfile(Guid? userId)
@@ -100,7 +119,7 @@ namespace NaughtyChoppersDA.Repositories
                         }
                     }
                 }
-                profile.Interests = GetAllHobbyInterestsFromProfile(profile.ProfileId);
+                profile.HobbyInterests = GetAllHobbyInterestsFromProfile(profile.ProfileId);
                 if (profile.PostalCode != null)
                 {
                     profile.City = GetCityByPostalCode(profile.PostalCode);
@@ -116,6 +135,38 @@ namespace NaughtyChoppersDA.Repositories
                 throw new UserException("Unknown error");
             }
 
+        }
+
+        public Guid? GetProfileId(Guid? userId)
+        {
+            Guid? profileId = null;
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(myDbConnectionString))
+                {
+                    connection.Open();
+
+                    SqlCommand command = new SqlCommand("GetProfileId", connection);
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@UserId", SqlDbType.UniqueIdentifier).Value = userId;
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            profileId = reader.GetGuid(0);
+                        }
+                    }
+                }
+                return profileId;
+            }
+            catch (SqlException)
+            {
+                throw new UserException("Database error");
+            }
+            catch (Exception)
+            {
+                throw new UserException("Unknown error");
+            }
         }
 
         public void UpdateProfile(Profile profile)
@@ -351,7 +402,7 @@ namespace NaughtyChoppersDA.Repositories
                             SqlCommand command = new SqlCommand("AddModelInterestToProfile", connection);
                             command.CommandType = CommandType.StoredProcedure;
                             command.Parameters.AddWithValue("@ProfileId", SqlDbType.UniqueIdentifier).Value = profileId;
-                            command.Parameters.AddWithValue("@ModelInterestId", SqlDbType.Int).Value = helicopterModel.Id;
+                            command.Parameters.AddWithValue("@ModelId", SqlDbType.Int).Value = helicopterModel.Id;
                             command.ExecuteNonQuery();
                         }
                         catch (SqlException ex)
@@ -384,6 +435,7 @@ namespace NaughtyChoppersDA.Repositories
         {
             throw new NotImplementedException();
         }
+
         #endregion
     }
 }
