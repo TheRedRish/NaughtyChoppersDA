@@ -73,7 +73,7 @@ namespace NaughtyChoppersDA.Repositories
             }
         }
 
-        public Profile GetProfileByProfileId(Guid? profileId)
+        public Profile GetProfileByProfileId(Guid profileId)
         {
             Profile profile = new();
             try
