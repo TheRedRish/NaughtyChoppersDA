@@ -126,7 +126,7 @@ AS
 BEGIN
 SELECT InterestName
 FROM InterestTable AS IT
-JOIN ProfileInterest AS [PI] ON IT.Id=[PI].InterestId
+JOIN ProfileInterests AS [PI] ON IT.Id=[PI].InterestId
 WHERE [PI].ProfileId = @ProfileId
 END
 GO
@@ -146,7 +146,7 @@ CREATE PROCEDURE AddInterestToProfile(
 )
 AS
 BEGIN
-INSERT INTO ProfileInterest (ProfileId, InterestId)
+INSERT INTO ProfileInterests (ProfileId, InterestId)
 VALUES (@ProfileId, @InterestId)
 END
 
@@ -157,7 +157,7 @@ CREATE PROCEDURE RemoveInterestForProfile(
 )
 AS
 BEGIN
-DELETE FROM ProfileInterest
+DELETE FROM ProfileInterests
 WHERE @ProfileId = ProfileId AND @InterestId = InterestId
 END
 GO
@@ -185,7 +185,7 @@ CREATE PROCEDURE RemoveAllInterests(
 )
 AS
 BEGIN
-DELETE FROM ProfileInterest
+DELETE FROM ProfileInterests
 WHERE ProfileId = @ProfileId
 END
 GO
@@ -228,5 +228,27 @@ EXEC RemoveAllModelInterests
 
 DELETE FROM ProfileInformation
 WHERE Id = @ProfileIdToDelete;
+END
+GO
+
+GO
+CREATE PROCEDURE GetProfileByUserId(
+@UserId UNIQUEIDENTIFIER
+)
+AS
+BEGIN
+SELECT * FROM ProfileInformation
+WHERE UserId = @UserId
+END
+GO
+
+GO
+CREATE PROCEDURE GetProfileId(
+@UserId UNIQUEIDENTIFIER
+)
+AS
+BEGIN
+SELECT Id FROM ProfileInformation
+WHERE UserId = @UserId
 END
 GO

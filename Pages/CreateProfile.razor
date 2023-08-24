@@ -1,0 +1,258 @@
+﻿@page "/create-profile"
+@using NaughtyChoppersDA.Globals.Utils;
+@using NaughtyChoppersDA.Services;
+@using NaughtyChoppersDA.Entities;
+@using MudBlazor;
+@inject IProfileService ProfileService
+@inject IUserService UserService
+
+@if (UserService.User != null)
+{
+    <h3>Create Profile</h3>
+    @* <MudCard>
+        <EditForm T="ProfileModel" Model="profile">
+            <MudCardContent>
+            <div class="form-group">
+                <MudTextField Label="Name" @bind-Value="profile.Name" />
+            </div>
+
+            <div class="form-group">
+                <MudDatePicker Label="Date of Birth" @bind-Value="profile.DateOfBirth" />
+            </div>
+
+            <div class="form-group">
+                <MudSelect Label="Helicopter Model" @bind-Value="profile.Model.Id">
+                    @foreach (var model in helicopterModels)
+                    {
+                        <MudSelectItem Value="@model.Id">@model.Name</MudSelectItem>
+                    }
+                </MudSelect>
+            </div>
+
+            <MudFileUpload T="IBrowserFile" @bind-Files="selectedFile" Accept=".jpg,.jpeg,.png,.gif">
+                <ButtonTemplate Context="selectedFiles">
+                    <MudButton HtmlTag="label"
+                               Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               for="@selectedFiles">
+                        Upload File
+                    </MudButton>
+                </ButtonTemplate>
+            </MudFileUpload>
+
+            <div class="form-group">
+                <MudTextField Label="Postal Code" @bind-Value="profile.PostalCode" @onblur="FetchCity" />
+            </div>
+
+            <div class="form-group">
+                <MudTextField Label="City" @bind-Value="profile.City" />
+            </div>
+
+            <div class="form-group">
+                <MudSelect T="string" Label="Select Hobby Interests" MultiSelection="true" @bind-Value="displayedHobbyInterests" @bind-SelectedValues="selectedHobbyInterests">
+                    @foreach (HobbyInterest hobbyInterest in hobbyInterests)
+                    {
+                        <MudSelectItem T="string" Value="@hobbyInterest.Name">@hobbyInterest.Name</MudSelectItem>
+                    }
+                </MudSelect>
+            </div>
+
+            <div class="form-group">
+                <MudSelect T="string" Label="Select Model Interests" MultiSelection="true" @bind-Value="displayedModelInterests" @bind-SelectedValues="selectedModelInterests">
+                    @foreach (HelicopterModel helicopterModel in helicopterModels)
+                    {
+                        <MudSelectItem T="string" Value="@helicopterModel.Name">@helicopterModel.Name</MudSelectItem>
+                    }
+                </MudSelect>
+            </div>
+
+            <div class="form-group">
+                <MudButton OnClick="@(async () => HandleSubmit())">Create Profile</MudButton>
+            </div>
+            </MudCardContent>
+        </EditForm>
+    </MudCard> *@
+    <MudContainer MaxWidth="MaxWidth.Medium">
+        <EditForm T="ProfileModel" Model="@profile" OnValidSubmit="@HandleSubmit">
+            <MudCardContent>
+                <MudContainer Class="text-center">
+                    <MudText Typo="Typo.h4" Class="mb-2">
+                        Edit Form
+                    </MudText>
+                </MudContainer>
+
+                <div class="form-group">
+                    <MudTextField Label="Name" @bind-Value="profile.Name" />
+                </div>
+
+                <div class="form-group">
+                    <MudDatePicker Label="Date of Birth" @bind-Value="profile.DateOfBirth" />
+                </div>
+
+                <div class="form-group">
+                    <MudSelect Label="Helicopter Model" @bind-Value="profile.Model!.Id">
+                        @foreach (var model in helicopterModels)
+                        {
+                            <MudSelectItem Value="@model.Id">@model.Name</MudSelectItem>
+                        }
+                    </MudSelect>
+                </div>
+
+                <MudFileUpload T="IBrowserFile" Context="selectedFile" Accept=".jpg,.jpeg,.png,.gif">
+                    <ButtonTemplate>
+                        <MudButton HtmlTag="label"
+                                   Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                                   for="@selectedFile">
+                            Upload File
+                        </MudButton>
+                    </ButtonTemplate>
+                    <SelectedTemplate>
+                        @if (selectedFile != null)
+                        {
+                            <MudText>@selectedFile.Name</MudText>
+                        }
+                        else
+                        {
+                            <MudText>No File</MudText>
+                        }
+                    </SelectedTemplate>
+                </MudFileUpload>
+
+                <div class="form-group">
+                    <MudTextField Label="Postal Code" @bind-Value="profile.PostalCode" @onblur="FetchCity" />
+                </div>
+
+                <div class="form-group">
+                    <MudTextField Label="City" @bind-Value="profile.City" />
+                </div>
+
+                <div class="form-group">
+                    <MudSelect T="string" Label="Select Hobby Interests" MultiSelection="true" @bind-Value="displayedHobbyInterests" @bind-SelectedValues="selectedHobbyInterests">
+                        @foreach (HobbyInterest hobbyInterest in hobbyInterests)
+                        {
+                            <MudSelectItem T="string" Value="@hobbyInterest.Name">@hobbyInterest.Name</MudSelectItem>
+                        }
+                    </MudSelect>
+                </div>
+
+                <div class="form-group">
+                    <MudSelect T="string" Label="Select Model Interests" MultiSelection="true" @bind-Value="displayedModelInterests" @bind-SelectedValues="selectedModelInterests">
+                        @foreach (HelicopterModel helicopterModel in helicopterModels)
+                        {
+                            <MudSelectItem T="string" Value="@helicopterModel.Name">@helicopterModel.Name</MudSelectItem>
+                        }
+                    </MudSelect>
+                </div>
+
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-4" Type="submit" OnClick="@(async () => HandleSubmit())">
+                    Create Profile
+                </MudButton>
+            </MudCardContent>
+        </EditForm>
+    </MudContainer>
+
+    <button type="button" @onclick="GetProfile">Get profile with userId</button>
+    <button type="button" @onclick="DeleteProfile">Delete Profile</button>
+}
+@code {
+    public Profile profile = new();
+    public List<HelicopterModel> helicopterModels = new List<HelicopterModel>();
+    public List<HobbyInterest> hobbyInterests = new List<HobbyInterest>();
+    private IBrowserFile selectedFile;
+    private string displayedHobbyInterests { get; set; } = "Nothing selected";
+    private string displayedModelInterests { get; set; } = "Nothing selected";
+    private IEnumerable<string> selectedHobbyInterests { get; set; } = new HashSet<string>();
+    private IEnumerable<string> selectedModelInterests { get; set; } = new HashSet<string>();
+    private DateTime DefaultDate = new DateTime(year: 1967, month: 7, day: 26);
+
+    protected override void OnInitialized()
+    {
+        if (UserService.User == null)
+        {
+            NavigationManager.NavigateTo("/user-login");
+        }
+
+        // Setting default model
+        profile.Model = new() { Id = 1, Name = "" };
+
+        profile.DateOfBirth = DefaultDate;
+        hobbyInterests = ProfileService.GetAllHobbyInterests();
+        helicopterModels = ProfileService.GetAllHelicopterModels();
+    }
+
+    private void FetchCity()
+    {
+        if (!string.IsNullOrEmpty(profile.PostalCode))
+        {
+            profile.City = ProfileService.GetCityByPostalCode(profile.PostalCode);
+        }
+    }
+
+    private async Task HandleFileSelection()
+    {
+        // Check if a file was selected
+        if (selectedFile != null)
+        {
+            // Get the file extension
+            var fileExtension = Path.GetExtension(selectedFile.Name)?.ToLowerInvariant();
+
+            // Check if the file extension is allowed
+            if (fileExtension == ".jpg" || fileExtension == ".jpeg" || fileExtension == ".png" || fileExtension == ".gif")
+            {
+                // Convert the selected file to a byte array
+                using (var memoryStream = new MemoryStream())
+                {
+                    await selectedFile.OpenReadStream().CopyToAsync(memoryStream);
+                    var imageDataBytes = memoryStream.ToArray();
+
+                    // Now you have the image data as a byte array (imageDataBytes)
+
+                    // You can set the byte array to the profile's image property
+                    profile.ProfileImage = imageDataBytes;
+
+                    // You can also handle storing the byte array in your database
+                }
+            }
+            else
+            {
+                // Handle invalid file extension (show a message, reset input, etc.)
+            }
+        }
+    }
+    private void AddHobbyInterrestsToProfile()
+    {
+        List<HobbyInterest> filteredHobbyInterests = hobbyInterests.Where(hobbyInterest => selectedHobbyInterests.Contains(hobbyInterest.Name)).ToList();
+        profile.HobbyInterests = filteredHobbyInterests;
+    }
+    private void AddHelicopterModelInterrestsToProfile()
+    {
+        List<HelicopterModel> filteredHelicopterModelInterests = helicopterModels.Where(helicopterModel => selectedModelInterests.Contains(helicopterModel.Name)).ToList();
+        profile.HelicopterModelInterests = filteredHelicopterModelInterests;
+    }
+
+    private void GetProfile()
+    {
+        ProfileService.Profile = ProfileService.GetProfile(UserService.User.UserId);
+    }
+
+    private void DeleteProfile()
+    {
+        if (ProfileService.Profile?.ProfileId != null)
+        {
+            ProfileService.DeleteProfile((Guid)ProfileService.Profile.ProfileId);
+        }
+    }
+
+    private async void HandleSubmit()
+    {
+        await HandleFileSelection();
+        AddHobbyInterrestsToProfile();
+        AddHelicopterModelInterrestsToProfile();
+
+        if (UserService.User != null)
+        {
+            ProfileService.CreateProfile(profile, UserService.User);
+        }
+    }
+}

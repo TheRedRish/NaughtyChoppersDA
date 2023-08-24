@@ -1,29 +1,48 @@
 ﻿using NaughtyChoppersDA.Entities;
+using NaughtyChoppersDA.Repositories;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace NaughtyChoppersDA.Services
 {
     public class ProfileService : IProfileService
     {
-        public Profile? Profile { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-
-        public bool CreateProfile(string userName, string password)
+        private IProfileRepository _repository;
+        public ProfileService(IProfileRepository profileRepository)
         {
-            throw new NotImplementedException();
+            _repository = profileRepository;
+        }
+        public Profile? Profile { get; set; }
+
+        public string CreateProfile(Profile profile, User user)
+        {
+            _repository.CreateProfile(profile, user);
+            return "Succes";
         }
 
-        public string CreateProfile(Profile profile)
+        public string DeleteProfile(Guid profileId)
         {
-            throw new NotImplementedException();
+            _repository.DeleteProfile(profileId);
+            return "Succes";
         }
 
-        public string DeleteProfile(Guid id)
+        public List<HelicopterModel> GetAllHelicopterModels()
         {
-            throw new NotImplementedException();
+            return _repository.GetAllHelicoptersModels();
         }
 
-        public User GetProfile(Guid id)
+        public List<HobbyInterest> GetAllHobbyInterests()
         {
-            throw new NotImplementedException();
+            return _repository.GetAllHobbyInterests();            
+        }
+
+        public string? GetCityByPostalCode(string postalCode)
+        {
+            return _repository.GetCityByPostalCode(postalCode);
+        }
+
+        public Profile GetProfile(Guid userId)
+        {
+            return _repository.GetProfile(userId);
         }
 
         public string UpdateProfile(Profile profile)

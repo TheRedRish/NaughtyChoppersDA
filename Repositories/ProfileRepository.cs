@@ -22,7 +22,7 @@ namespace NaughtyChoppersDA.Repositories
                 {
                     connection.Open();
 
-                    SqlCommand command = new SqlCommand("AddUser", connection);
+                    SqlCommand command = new SqlCommand("CreateProfile", connection);
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.AddWithValue("@Name", SqlDbType.NVarChar).Value = profile.Name;
                     command.Parameters.AddWithValue("@BirthDate", SqlDbType.Date).Value = profile.DateOfBirth;
@@ -33,8 +33,10 @@ namespace NaughtyChoppersDA.Repositories
 
                     command.ExecuteNonQuery();
                 }
-           
-                AddHobbyInterestsToProfile(profile.ProfileId, profile.Interests!);
+
+                profile.ProfileId = GetProfileId(user.UserId);
+
+                AddHobbyInterestsToProfile(profile.ProfileId, profile.HobbyInterests!);
                 AddHelicopterModelInterestsToProfile(profile.ProfileId, profile.HelicopterModelInterests!);
             }
             catch (SqlException)
@@ -49,7 +51,26 @@ namespace NaughtyChoppersDA.Repositories
 
         public void DeleteProfile(Guid? profileId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(myDbConnectionString))
+                {
+                    connection.Open();
+
+                    SqlCommand command = new SqlCommand("DeleteProfile", connection);
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@ProfileIdToDelete", SqlDbType.UniqueIdentifier).Value = profileId;
+                    command.ExecuteNonQuery();
+                }
+            }
+            catch (SqlException)
+            {
+                throw new UserException("Database error");
+            }
+            catch (Exception)
+            {
+                throw new UserException("Unknown error");
+            }
         }
 
         public Profile GetProfile(Guid? userId)
@@ -61,7 +82,7 @@ namespace NaughtyChoppersDA.Repositories
                 {
                     connection.Open();
 
-                    SqlCommand command = new SqlCommand("GetProfile", connection);
+                    SqlCommand command = new SqlCommand("GetProfileByUserId", connection);
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.AddWithValue("@UserId", SqlDbType.UniqueIdentifier).Value = userId;
                     using (SqlDataReader reader = command.ExecuteReader())
@@ -70,9 +91,9 @@ namespace NaughtyChoppersDA.Repositories
                         {
                             profile.ProfileId = reader.GetGuid(0);
                             profile.Name = reader.GetString(1);
-                            DateTime sqlDate = reader.GetDateTime(2);
-                            profile.DateOfBirth = new DateOnly(sqlDate.Year, sqlDate.Month, sqlDate.Day);
-                            profile.Model = GetHelicopterModel(reader.GetInt32(3));
+                            profile.DateOfBirth = reader.GetDateTime(2);
+                            profile.Model = new();
+                            profile.Model.Id = reader.GetInt32(3);
                             if (!reader.IsDBNull(4))
                             {
                                 long bytesRead;
@@ -98,7 +119,7 @@ namespace NaughtyChoppersDA.Repositories
                         }
                     }
                 }
-                profile.Interests = GetAllHobbyInterestsFromProfile(profile.ProfileId);
+                profile.HobbyInterests = GetAllHobbyInterestsFromProfile(profile.ProfileId);
                 if (profile.PostalCode != null)
                 {
                     profile.City = GetCityByPostalCode(profile.PostalCode);
@@ -116,6 +137,38 @@ namespace NaughtyChoppersDA.Repositories
 
         }
 
+        public Guid? GetProfileId(Guid? userId)
+        {
+            Guid? profileId = null;
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(myDbConnectionString))
+                {
+                    connection.Open();
+
+                    SqlCommand command = new SqlCommand("GetProfileId", connection);
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@UserId", SqlDbType.UniqueIdentifier).Value = userId;
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            profileId = reader.GetGuid(0);
+                        }
+                    }
+                }
+                return profileId;
+            }
+            catch (SqlException)
+            {
+                throw new UserException("Database error");
+            }
+            catch (Exception)
+            {
+                throw new UserException("Unknown error");
+            }
+        }
+
         public void UpdateProfile(Profile profile)
         {
             throw new NotImplementedException();
@@ -123,7 +176,7 @@ namespace NaughtyChoppersDA.Repositories
 
         public string? GetCityByPostalCode(string postalCode)
         {
-            string? postcode = null;
+            string? city = null;
             try
             {
                 using (SqlConnection connection = new SqlConnection(myDbConnectionString))
@@ -137,7 +190,7 @@ namespace NaughtyChoppersDA.Repositories
                     {
                         if (reader.Read())
                         {
-                            postcode = reader.GetString(0);
+                            city = reader.GetString(0);
                         }
                     }
                 }
@@ -151,7 +204,7 @@ namespace NaughtyChoppersDA.Repositories
                 throw new UserException("Unknown error");
             }
 
-            return postcode;
+            return city;
         }
 
         #region HobbyInterests
@@ -349,7 +402,7 @@ namespace NaughtyChoppersDA.Repositories
                             SqlCommand command = new SqlCommand("AddModelInterestToProfile", connection);
                             command.CommandType = CommandType.StoredProcedure;
                             command.Parameters.AddWithValue("@ProfileId", SqlDbType.UniqueIdentifier).Value = profileId;
-                            command.Parameters.AddWithValue("@ModelInterestId", SqlDbType.Int).Value = helicopterModel.Id;
+                            command.Parameters.AddWithValue("@ModelId", SqlDbType.Int).Value = helicopterModel.Id;
                             command.ExecuteNonQuery();
                         }
                         catch (SqlException ex)
@@ -382,6 +435,7 @@ namespace NaughtyChoppersDA.Repositories
         {
             throw new NotImplementedException();
         }
+
         #endregion
     }
 }

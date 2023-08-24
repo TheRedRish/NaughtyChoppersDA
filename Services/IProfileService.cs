@@ -5,9 +5,12 @@ namespace NaughtyChoppersDA.Services
     public interface IProfileService
     {
         Profile? Profile { get; set; }
-        User GetProfile(Guid id);
-        string CreateProfile(Profile profile);
+        Profile GetProfile(Guid userId);
+        string CreateProfile(Profile profile, User user);
         string UpdateProfile(Profile profile);
-        string DeleteProfile(Guid id);
+        string DeleteProfile(Guid profileId);
+        List<HelicopterModel> GetAllHelicopterModels();
+        List<HobbyInterest>GetAllHobbyInterests();
+        string? GetCityByPostalCode(string postalCode);
     }
 }

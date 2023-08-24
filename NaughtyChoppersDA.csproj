@@ -8,8 +8,22 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Pages\UserRegister.razor.css" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Pages\UserRegister.razor.css" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MudBlazor" Version="6.9.0" />
+    <PackageReference Include="MudBlazor.ThemeManager" Version="1.0.8" />
     <PackageReference Include="OpenAI.Net.Client" Version="1.0.20" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\css\" />
   </ItemGroup>
 
 </Project>
