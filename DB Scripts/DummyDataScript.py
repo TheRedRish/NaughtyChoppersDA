@@ -18,7 +18,7 @@ connection = pyodbc.connect(connection_string)
 cursor = connection.cursor()
 
 # Define the number of random records to generate
-num_records = 50
+num_records = int(input('How many records do you want to insert? '))
 
 # Generate and insert random data
 for i in range(num_records):
