@@ -120,6 +120,7 @@ namespace NaughtyChoppersDA.Repositories
                     }
                 }
                 profile.HobbyInterests = GetAllHobbyInterestsFromProfile(profile.ProfileId);
+                profile.HelicopterModelInterests = GetHelicopterModelInterstsFromProfile(profile.ProfileId);
                 if (profile.PostalCode != null)
                 {
                     profile.City = GetCityByPostalCode(profile.PostalCode);
@@ -224,7 +225,7 @@ namespace NaughtyChoppersDA.Repositories
                     {
                         while (reader.Read())
                         {
-                            interestsList.Add(new HobbyInterest { Name = reader.GetString(0) });
+                            interestsList.Add(new HobbyInterest { Id = reader.GetInt32(0), Name = reader.GetString(1) });
                         }
                     }
                 }
@@ -322,7 +323,34 @@ namespace NaughtyChoppersDA.Repositories
         #region HelicopterModel
         public List<HelicopterModel> GetHelicopterModelInterstsFromProfile(Guid? profileId)
         {
-            throw new NotImplementedException();
+            List<HelicopterModel> helicopterModelInterests = new();
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(myDbConnectionString))
+                {
+                    connection.Open();
+
+                    SqlCommand command = new SqlCommand("GetModelInterest", connection);
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@ProfileId", SqlDbType.UniqueIdentifier).Value = profileId;
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            helicopterModelInterests.Add(new HelicopterModel { Id = reader.GetInt32(0), Name = reader.GetString(1) });
+                        }
+                    }
+                }
+            }
+            catch (SqlException)
+            {
+                throw new UserException("Database error");
+            }
+            catch (Exception)
+            {
+                throw new UserException("Unknown error");
+            }
+            return helicopterModelInterests;
         }
 
         public HelicopterModel GetHelicopterModel(int helicopterModelId)
