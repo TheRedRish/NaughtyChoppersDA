@@ -2,9 +2,25 @@
 @using NaughtyChoppersDA.Globals.Utils;
 @using NaughtyChoppersDA.Services;
 @using NaughtyChoppersDA.Entities;
+@using NaughtyChoppersDA.Repositories;
 @inject IUserService userService
+@inject IProfileService profileService
 
 <PageTitle>Index</PageTitle>
+
+<div class="top-row px-4">
+    @if(userService.User == null)
+	{
+		<a href="/user-login">Login</a>
+        <a href="/user-register">Register</a>
+	}
+
+    @if (userService.User != null && profileService.Profile == null)
+    {
+        <a href="/create-profile">Create Profile</a>
+    }
+    <a href="/">Index</a>
+</div>
 
 <h1>Hello, world!</h1>
 
@@ -13,6 +29,6 @@ Welcome to your new app.
 @code{
     protected override void OnInitialized()
     {
-        var user = userService.User;
+        
     }
 }

@@ -27,6 +27,7 @@ namespace NaughtyChoppersDA
 
             builder.Services.AddTransient<IUserRepository, UserRepository>();
             builder.Services.AddTransient<IProfileRepository, ProfileRepository>();
+            builder.Services.AddTransient<IMatchingRepository, MatchingRepository>();
 
             var app = builder.Build();
 

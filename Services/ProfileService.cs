@@ -42,7 +42,7 @@ namespace NaughtyChoppersDA.Services
 
         public Profile GetProfile(Guid userId)
         {
-            return _repository.GetProfile(userId);
+            return _repository.GetProfileByUserId(userId);
         }
 
         public string UpdateProfile(Profile profile)

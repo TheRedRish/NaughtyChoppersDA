@@ -50,6 +50,17 @@ END
 GO
 
 GO
+CREATE PROCEDURE GetProfileByProfileId(
+@ProfileId UNIQUEIDENTIFIER
+)
+AS
+BEGIN
+SELECT * FROM ProfileInformation
+WHERE Id = @ProfileId
+END
+GO
+
+GO
 CREATE PROCEDURE GetCityByPostalCode(
 @PostalCode NVARCHAR(10)
 )
@@ -85,6 +96,21 @@ JOIN ProfileModelInterest AS [PMI] ON MT.Id=[PMI].ModelId
 WHERE [PMI].ProfileId = @ProfileId
 END
 GO
+
+GO
+CREATE PROCEDURE GetProfileModelInterest(
+@ProfileId UNIQUEIDENTIFIER
+)
+AS
+BEGIN
+select MIb.ProfileId, PIb.Model, MIb.ModelId from ProfileInformation as PIa
+Join ProfileModelInterest as MIa on PIa.Id = MIa.ProfileId
+Join ProfileModelInterest as MIb on PIa.Model = MIb.ModelId
+Join ProfileInformation as PIb on MIb.ProfileId = PIb.Id
+where PIb.model = MIa.ModelId
+and PIb.id != PIa.id
+and PIa.Id = @ProfileId
+END
 
 GO
 CREATE PROCEDURE GetAllModels
@@ -250,5 +276,28 @@ AS
 BEGIN
 SELECT Id FROM ProfileInformation
 WHERE UserId = @UserId
+END
+GO
+
+GO
+CREATE PROCEDURE GetLikedId(
+@ProfileId UNIQUEIDENTIFIER
+)
+AS
+BEGIN
+SELECT Receiver FROM LikesTable
+WHERE SenderId = @ProfileId
+END
+GO
+
+GO
+CREATE PROCEDURE GetLikersId(
+@ProfileId UNIQUEIDENTIFIER
+)
+AS
+BEGIN
+SELECT SenderId FROM LikesTable
+WHERE Receiver = @ProfileId 
+AND LikedBack IS NOT NULL
 END
 GO
