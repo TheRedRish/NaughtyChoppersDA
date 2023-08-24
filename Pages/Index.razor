@@ -29,6 +29,8 @@ Welcome to your new app.
 @code{
     protected override void OnInitialized()
     {
-        
+        IMatchingRepository matchingRepository = new MatchingRepository();
+
+        matchingRepository.GetFilteredListOfProfiles(new Guid("42DBF388-27E3-40D0-BE2B-E408E83BE1A3"));
     }
 }

@@ -10,9 +10,7 @@ namespace NaughtyChoppersDA.Repositories
     {
         private string myDbConnectionString = AccessToDb.ConnectionString;
 
-        private ProfileRepository profileRepo = new();
-
-        public List<Profile> GetProfilesWithMatchingModelInterest(Guid profileId)
+        private List<Profile> GetProfilesWithMatchingModelInterest(Guid profileId)
         {
             try
             {
@@ -34,7 +32,7 @@ namespace NaughtyChoppersDA.Repositories
                         {
                             while (reader.Read())
                             {
-                                profiles.Add(GetProfileByUserId(reader.GetGuid(0)));
+                                profiles.Add(GetProfileByProfileId(reader.GetGuid(0)));
                             }
                         }
                     }
@@ -51,9 +49,7 @@ namespace NaughtyChoppersDA.Repositories
             }
         }
 
-        
-
-        public List<Guid> ListOfLikersAndLiked(Guid profileId)
+        private List<Guid> ListOfLikersAndLiked(Guid profileId)
         {
             try
             {
