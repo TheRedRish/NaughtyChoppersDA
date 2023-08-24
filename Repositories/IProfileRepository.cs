@@ -12,7 +12,7 @@ namespace NaughtyChoppersDA.Repositories
         List<HelicopterModel> GetAllHelicoptersModels();
         HelicopterModel GetHelicopterModel(int helicopterModelId);
         string? GetCityByPostalCode(string postalCode);
-        Profile GetProfile(Guid? userId);
+        Profile GetProfileByUserId(Guid? userId);
         Guid? GetProfileId(Guid? userId);
         void UpdateProfile(Profile profile);
     }

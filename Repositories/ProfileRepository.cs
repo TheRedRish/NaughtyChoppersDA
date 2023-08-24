@@ -73,7 +73,70 @@ namespace NaughtyChoppersDA.Repositories
             }
         }
 
-        public virtual Profile GetProfile(Guid? userId)
+        public Profile GetProfileByProfileId(Guid? profileId)
+        {
+            Profile profile = new();
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(myDbConnectionString))
+                {
+                    connection.Open();
+
+                    SqlCommand command = new SqlCommand("GetProfileByProfileId", connection);
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@ProfileId", SqlDbType.UniqueIdentifier).Value = profileId;
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            profile.ProfileId = reader.GetGuid(0);
+                            profile.Name = reader.GetString(1);
+                            profile.DateOfBirth = reader.GetDateTime(2);
+                            profile.Model = new();
+                            profile.Model.Id = reader.GetInt32(3);
+                            if (!reader.IsDBNull(4))
+                            {
+                                long bytesRead;
+                                long fieldOffset = 0;
+                                byte[] buffer = new byte[4096]; // Buffer to read chunks of data
+
+                                using (var memoryStream = new System.IO.MemoryStream())
+                                {
+                                    do
+                                    {
+                                        bytesRead = reader.GetBytes(4, fieldOffset, buffer, 0, buffer.Length);
+                                        memoryStream.Write(buffer, 0, (int)bytesRead);
+                                        fieldOffset += bytesRead;
+                                    }
+                                    while (bytesRead > 0);
+
+                                    byte[] varbinaryData = memoryStream.ToArray();
+
+                                    profile.ProfileImage = varbinaryData;
+                                }
+                            }
+                            profile.PostalCode = reader.GetString(5);
+                        }
+                    }
+                }
+                profile.HobbyInterests = GetAllHobbyInterestsFromProfile(profile.ProfileId);
+                if (profile.PostalCode != null)
+                {
+                    profile.City = GetCityByPostalCode(profile.PostalCode);
+                }
+                return profile;
+            }
+            catch (SqlException)
+            {
+                throw new UserException("Database error");
+            }
+            catch (Exception)
+            {
+                throw new UserException("Unknown error");
+            }
+        }
+
+        public Profile GetProfileByUserId(Guid? userId)
         {
             Profile profile = new();
             try
