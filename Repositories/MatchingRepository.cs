@@ -34,7 +34,7 @@ namespace NaughtyChoppersDA.Repositories
                         {
                             while (reader.Read())
                             {
-                                profiles.Add(GetProfileByUserId(reader.GetGuid(0)));
+                                profiles.Add(GetProfileByProfileId(reader.GetGuid(0)));
                             }
                         }
                     }
