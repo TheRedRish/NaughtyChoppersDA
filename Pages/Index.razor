@@ -33,7 +33,7 @@ Welcome to your new app.
     {
         if(userService.User != null && profileService.Profile == null)
         {
-            profileService.Profile = profileService.GetProfileByUserId(userService.User.UserId);
+            profileService.Profile = profileService.GetProfile(userService.User.UserId);
         }
     }
 }
