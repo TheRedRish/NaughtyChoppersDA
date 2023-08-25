@@ -160,29 +160,18 @@
         // Check if a file was selected
         if (selectedFile != null)
         {
-            // Get the file extension
-            var fileExtension = Path.GetExtension(selectedFile.Name)?.ToLowerInvariant();
-
-            // Check if the file extension is allowed
-            if (fileExtension == ".jpg" || fileExtension == ".jpeg" || fileExtension == ".png" || fileExtension == ".gif")
+            // Convert the selected file to a byte array
+            using (var memoryStream = new MemoryStream())
             {
-                // Convert the selected file to a byte array
-                using (var memoryStream = new MemoryStream())
-                {
-                    await selectedFile.OpenReadStream().CopyToAsync(memoryStream);
-                    var imageDataBytes = memoryStream.ToArray();
+                await selectedFile.OpenReadStream().CopyToAsync(memoryStream);
+                var imageDataBytes = memoryStream.ToArray();
 
-                    // Now you have the image data as a byte array (imageDataBytes)
+                // Now you have the image data as a byte array (imageDataBytes)
 
-                    // You can set the byte array to the profile's image property
-                    profile.ProfileImage = imageDataBytes;
+                // You can set the byte array to the profile's image property
+                profile.ProfileImage = imageDataBytes;
 
-                    // You can also handle storing the byte array in your database
-                }
-            }
-            else
-            {
-                // Handle invalid file extension (show a message, reset input, etc.)
+                // You can also handle storing the byte array in your database
             }
         }
     }

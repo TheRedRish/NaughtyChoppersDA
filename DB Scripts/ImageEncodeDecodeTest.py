@@ -21,7 +21,7 @@ connection_string = (
 connection = pyodbc.connect(connection_string)
 cursor = connection.cursor()
 
-select_query = (f"SELECT ProfileImg FROM ProfileInformation WHERE Id = '04B6F9F5-0EA2-4FEF-ACE4-1BFE1AF9D3D0'")
+select_query = (f"SELECT ProfileImg FROM ProfileInformation WHERE Id = '47BC4809-0C77-4B76-AEE2-0011F881F31C'")
 
 cursor.execute(select_query)
 encoded_image_bytes = cursor.fetchall()[0]

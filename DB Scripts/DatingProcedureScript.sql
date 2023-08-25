@@ -301,3 +301,28 @@ WHERE Receiver = @ProfileId
 AND LikedBack IS NOT NULL
 END
 GO
+
+GO
+CREATE PROCEDURE SetLikeTableResult(
+    @SenderId UNIQUEIDENTIFIER,
+    @ReceiverId UNIQUEIDENTIFIER,
+    @Liked BIT
+)
+AS
+BEGIN
+    -- Check if the combination already exists in either direction
+    IF EXISTS (SELECT 1 FROM LikesTable WHERE SenderId = @ReceiverId AND Receiver = @SenderId)
+    BEGIN
+        -- Update the existing record
+        UPDATE LikesTable
+        SET LikedBack = @Liked
+        WHERE SenderId = @ReceiverId AND Receiver = @SenderId
+    END
+    ELSE
+    BEGIN
+        -- Insert a new record
+        INSERT INTO LikesTable (SenderId, Receiver, LikedBack) 
+        VALUES (@SenderId, @ReceiverId, CASE WHEN @Liked = 1 THEN NULL ELSE @Liked END)
+    END
+END
+GO

@@ -1,0 +1,76 @@
+﻿@page "/DatingPage"
+@using System.IO
+@using NaughtyChoppersDA.Entities
+@using NaughtyChoppersDA.Repositories
+@using NaughtyChoppersDA.Services
+@using System.Linq
+@inject IProfileService profileService
+
+
+<h3>Singles</h3>
+
+@if (profiles.Any())
+{
+    <div class="profile-container">
+        <div class="profile-card">
+            <div class="profile-content">
+                <h4>@currentProfile.Name</h4>
+                @if (imageData != null)
+                {
+                    <img src="@imageDataUrl" alt="Image" />
+                }
+                else
+                {
+                    <p>No image to display.</p>
+                }
+                <p>Date of Birth: @currentProfile.DateOfBirth</p>
+                <p>Age: @currentProfile.Age</p>
+                <p>Model: @currentProfile.Model.Name</p>
+
+
+                <div class="buttons">
+                    <button @onclick="LikeProfile">Like</button>
+                    <button @onclick="DislikeProfile">Dislike</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <p>No profiles to display.</p>
+}
+
+@code {
+    IMatchingRepository matchingRepository = new MatchingRepository();
+
+    private List<Profile> profiles = new();
+
+
+    protected override void OnInitialized()
+    {
+        var profileId = profileService.Profile!.ProfileId;
+        profiles = matchingRepository.GetFilteredListOfProfiles((Guid)profileService.Profile!.ProfileId!); // Initialize with your list of profiles
+    }
+
+    int currentIndex = 0;
+    Profile currentProfile => profiles.ElementAtOrDefault(currentIndex);
+    private byte[] imageData => currentProfile.ProfileImage;
+    private string imageDataUrl => imageData != null ? $"data:image/png;base64,{Convert.ToBase64String(imageData)}" : "";
+
+
+    async void LikeProfile()
+    {
+        matchingRepository.LikeProfileAsync((Guid)profileService.Profile!.ProfileId!, (Guid)currentProfile.ProfileId!, true);
+        profiles.RemoveAt(currentIndex);
+        currentIndex = (currentIndex + 1) % profiles.Count;
+    }
+
+    void DislikeProfile()
+    {
+        matchingRepository.LikeProfileAsync((Guid)profileService.Profile!.ProfileId!, (Guid)currentProfile.ProfileId!, false);
+        profiles.RemoveAt(currentIndex);
+        currentIndex = (currentIndex + 1) % profiles.Count;
+    }
+
+}
