@@ -9,11 +9,11 @@
 <PageTitle>Index</PageTitle>
 
 <div class="top-row px-4">
-    @if(userService.User == null)
-	{
-		<a href="/user-login">Login</a>
+    @if (userService.User == null)
+    {
+        <a href="/user-login">Login</a>
         <a href="/user-register">Register</a>
-	}
+    }
 
     @if (userService.User != null && profileService.Profile == null)
     {

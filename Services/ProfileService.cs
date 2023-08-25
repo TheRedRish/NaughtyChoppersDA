@@ -40,7 +40,12 @@ namespace NaughtyChoppersDA.Services
             return _repository.GetCityByPostalCode(postalCode);
         }
 
-        public Profile GetProfile(Guid userId)
+        public Profile GetProfileByProfileId(Guid profileId)
+        {
+            return _repository.GetProfileByProfileId(profileId);
+        }
+
+        public Profile GetProfileByUserId(Guid userId)
         {
             return _repository.GetProfileByUserId(userId);
         }

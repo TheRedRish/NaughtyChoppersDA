@@ -119,6 +119,7 @@ namespace NaughtyChoppersDA.Repositories
                     }
                 }
                 profile.HobbyInterests = GetAllHobbyInterestsFromProfile(profile.ProfileId);
+                profile.HelicopterModelInterests = GetHelicopterModelInterstsFromProfile(profile.ProfileId);
                 if (profile.PostalCode != null)
                 {
                     profile.City = GetCityByPostalCode(profile.PostalCode);
