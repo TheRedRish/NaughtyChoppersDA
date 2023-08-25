@@ -12,8 +12,6 @@ namespace NaughtyChoppersDA.Repositories
     {
         private string myDbConnectionString = AccessToDb.ConnectionString;
 
-        private ProfileRepository profileRepo = new();
-
         public List<Profile> GetProfilesWithMatchingModelInterest(Guid profileId)
         {
             try

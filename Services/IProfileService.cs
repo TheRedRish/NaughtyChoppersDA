@@ -5,7 +5,7 @@ namespace NaughtyChoppersDA.Services
     public interface IProfileService
     {
         Profile? Profile { get; set; }
-        Profile GetProfileByUserId(Guid userId);
+        Profile? GetProfileByUserId(Guid userId);
         Profile GetProfileByProfileId(Guid profileId);
         string CreateProfile(Profile profile, User user);
         string UpdateProfile(Profile profile);

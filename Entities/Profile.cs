@@ -25,11 +25,11 @@ namespace NaughtyChoppersDA.Entities
             }
         }
         public int? Age { get => _age; set => _age = value; }
-        public HelicopterModel? Model { get; set; }
+        public HelicopterModel Model { get; set; }
         public byte[]? ProfileImage { get; set; }
         public string? PostalCode { get; set; }
         public string? City { get; set; }
-        public List<HobbyInterest>? HobbyInterests { get; set; }
-        public List<HelicopterModel>? HelicopterModelInterests { get; set; }
+        public List<HobbyInterest> HobbyInterests { get; set; }
+        public List<HelicopterModel> HelicopterModelInterests { get; set; }
     }
 }

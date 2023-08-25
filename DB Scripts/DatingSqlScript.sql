@@ -141,3 +141,16 @@ FOREIGN KEY (InterestId) REFERENCES InterestTable(Id),
 CONSTRAINT UQ_ProfileInterest UNIQUE (ProfileId, InterestId)
 )
 GO
+
+GO
+CREATE TABLE ChatTable(
+SenderId UNIQUEIDENTIFIER,
+ReceiverId UNIQUEIDENTIFIER,
+ChatMessage NVARCHAR(MAX),
+[TimeStamp] DateTime DEFAULT GETDATE()
+
+FOREIGN KEY ([SenderId]) REFERENCES [ProfileInformation](Id),
+FOREIGN KEY ([ReceiverId]) REFERENCES [ProfileInformation](Id)
+)
+GO
+

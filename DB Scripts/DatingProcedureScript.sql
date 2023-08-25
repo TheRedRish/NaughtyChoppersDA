@@ -326,3 +326,51 @@ BEGIN
     END
 END
 GO
+
+GO
+CREATE PROCEDURE SendMessageToReceiver(
+@Sender UNIQUEIDENTIFIER,
+@Receiver UNIQUEIDENTIFIER,
+@ChatMessage NVARCHAR(MAX)
+)
+AS
+BEGIN
+INSERT INTO ChatTable(SenderId, ReceiverId, ChatMessage)
+VALUES (@Sender, @Receiver, @ChatMessage)
+END
+GO
+
+GO
+CREATE PROCEDURE GetLikedMatches(
+    @YourId UNIQUEIDENTIFIER
+)
+AS
+BEGIN
+    SELECT
+        CASE
+            WHEN SenderId = @YourId THEN Receiver
+            WHEN Receiver = @YourId THEN SenderId
+        END AS OppositeUserId
+    FROM LikesTable
+    WHERE (SenderId = @YourId OR Receiver = @YourId)
+    AND LikedBack = 1;
+END
+GO
+
+GO
+CREATE PROCEDURE GetAllMessagesFromChat(
+@Sender UNIQUEIDENTIFIER,
+@Receiver UNIQUEIDENTIFIER,
+@AmountOfSkips INT = 0
+)
+AS
+BEGIN
+SELECT SenderId, [ChatMessage], [Timestamp]
+FROM [ChatTable]
+WHERE (SenderId = @Sender AND ReceiverId = @Receiver)
+   AND (SenderId = @Receiver AND ReceiverId = @Sender)
+ORDER BY [Timestamp]
+OFFSET @AmountOfSkips ROWS;
+END
+GO
+

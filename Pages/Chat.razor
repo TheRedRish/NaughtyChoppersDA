@@ -1,4 +1,6 @@
 ﻿@page "/chat/{otherProfileIdString}"
+@using NaughtyChoppersDA.Globals.Utils;
+@using NaughtyChoppersDA.Repositories;
 @inject IProfileService ProfileService
 
 @if (ProfileService.Profile != null && otherProfile != null)
@@ -13,12 +15,12 @@
             <div class="chat-messages">
                 @foreach (var message in messages)
                 {
-                    if (message.Sender == ProfileService.Profile)
+                    if (message.Sender.ProfileId == ProfileService.Profile.ProfileId)
                     {
                         <div class="d-flex flex-wrap justify-end my-3">
-                            <MudText Class="chat-message mud-theme-primary px-3 py-2 mx-2 rounded-s-xl rounded-te-xl " title="@ProfileService.Profile.Name">@message.Text </MudText>
+                            <MudText Class="chat-message mud-theme-primary px-3 py-2 mx-2 rounded-s-xl rounded-te-xl " title="@ProfileService.Profile.Name">@message.Message </MudText>
                             <MudImage Class="m-1 align-self-end rounded-circle" Src="@(profileImage)" Width="40" Height="40" />
-                            <MudText Class="timestamp-text timestamp-text--right">
+                            <MudText Class="timestamp-text timestamp-text--left">
                                 @GetTimeStamp(@message.Timestamp)
                             </MudText>
                         </div>
@@ -27,8 +29,8 @@
                     {
                         <div class="d-flex flex-wrap my-3">
                             <MudImage Class="m-1 align-self-end rounded-circle" Src="@(otherProfileImage)" Width="40" Height="40" />
-                            <MudText Class="chat-message mud-theme-secondary flex-wrap px-3 py-2 mx-2 rounded-e-xl rounded-ts-xl" title="@otherProfile.Name">@message.Text </MudText>
-                            <MudText Class="timestamp-text px-2 timestamp-text--left">
+                            <MudText Class="chat-message mud-theme-secondary flex-wrap px-3 py-2 mx-2 rounded-e-xl rounded-ts-xl" title="@otherProfile.Name">@message.Message </MudText>
+                            <MudText Class="timestamp-text px-2 timestamp-text--right">
                                 @GetTimeStamp(@message.Timestamp)
                             </MudText>
                         </div>
@@ -70,14 +72,17 @@
 
     private Guid otherProfileId;
 
+    private IChatRepository chatRepositories = new ChatRepository();
+
     private List<ChatMessage> messages = new List<ChatMessage>();
     private string messageText;
     private string profileImage = "data:image/*;base64,";
     private string otherProfileImage = "data:image/*;base64,";
     private Profile otherProfile;
     private int counter = 0;
+    private const int UpdateIntervalSeconds = 1;
 
-    protected override void OnInitialized()
+    protected override async void OnInitialized()
     {
         if (otherProfileIdString != null)
         {
@@ -97,7 +102,17 @@
         {
             otherProfileImage += ConvertProfileImageToBase64(otherProfile.ProfileImage);
         }
+
+        messages = await chatRepositories.GetAllChatMessages((Guid)ProfileService.Profile!.ProfileId, (Guid)otherProfile.ProfileId);
+
+        while (true)
+        {
+            messages = await chatRepositories.UpdateChatAsync((Guid)ProfileService.Profile!.ProfileId, (Guid)otherProfile.ProfileId, messages);
+            StateHasChanged();
+            await Task.Delay(TimeSpan.FromSeconds(UpdateIntervalSeconds));
+        }
     }
+
     private string GetTimeStamp(DateTime time)
     {
         DateTime currentDateTime = DateTime.UtcNow;
@@ -112,20 +127,25 @@
             return time.ToString("MM/dd/yyyy");
         }
     }
+
     private string ConvertProfileImageToBase64(Byte[] imageInByteArray)
     {
         return Convert.ToBase64String(ProfileService.Profile.ProfileImage);
     }
+
     private void SendMessage()
     {
-        if (!string.IsNullOrEmpty(messageText) && ProfileService.Profile != null)
+        if (!string.IsNullOrEmpty(messageText) && ProfileService.Profile != null && otherProfile != null)
         {
-            messages.Add(new ChatMessage
-                {
-                    Text = messageText,
-                    Sender = ProfileService.Profile,
-                    Timestamp = DateTime.UtcNow
-                });
+            //messages.Add(new ChatMessage
+            //    {
+            //        Message = messageText,
+            //        Sender = ProfileService.Profile,
+            //        Timestamp = DateTime.UtcNow
+            //    });
+            //messageText = string.Empty;
+
+            chatRepositories.SendMessage((Guid)ProfileService.Profile.ProfileId, (Guid)otherProfile.ProfileId, messageText);
             messageText = string.Empty;
         }
     }
