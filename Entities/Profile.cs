@@ -7,17 +7,20 @@ namespace NaughtyChoppersDA.Entities
     public class Profile
     {
         private int? _age;
-        private DateTime _dateOfBirth;
+        private DateTime? _dateOfBirth;
 
         public Guid? ProfileId { get; set; }
         public string? Name { get; set; }
-        public DateTime DateOfBirth
+        public DateTime? DateOfBirth
         {
             get => _dateOfBirth;
             set
             {
                 _dateOfBirth = value;
-                _age = DateUtils.CalculateAge(value);
+                if (value != null)
+                {
+                    _age = DateUtils.CalculateAge((DateTime)value);
+                }
 
             }
         }
