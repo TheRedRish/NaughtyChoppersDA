@@ -107,14 +107,12 @@ namespace NaughtyChoppersDA.Repositories
 
             List<Guid> profileIds = ListOfLikersAndLiked(profileId);
 
-            List<Profile> filteredList = new();
-
             foreach (Guid id in profileIds)
             {
                 profileList.RemoveAll(x => x.ProfileId == id);
             }
 
-            return filteredList;
+            return profileList;
         }
     }
 }

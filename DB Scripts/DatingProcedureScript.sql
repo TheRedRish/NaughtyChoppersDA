@@ -90,7 +90,7 @@ CREATE PROCEDURE GetModelInterest(
 )
 AS
 BEGIN
-SELECT ModelName
+SELECT *
 FROM ModelTable AS MT
 JOIN ProfileModelInterest AS [PMI] ON MT.Id=[PMI].ModelId
 WHERE [PMI].ProfileId = @ProfileId
@@ -150,7 +150,7 @@ CREATE PROCEDURE GetInterests(
 )
 AS
 BEGIN
-SELECT InterestName
+SELECT *
 FROM InterestTable AS IT
 JOIN ProfileInterests AS [PI] ON IT.Id=[PI].InterestId
 WHERE [PI].ProfileId = @ProfileId
