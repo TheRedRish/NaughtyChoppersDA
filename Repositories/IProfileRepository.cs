@@ -10,7 +10,7 @@ namespace NaughtyChoppersDA.Repositories
         List<HobbyInterest> GetAllHobbyInterestsFromProfile(Guid? profileId);
         List<HelicopterModel> GetHelicopterModelInterstsFromProfile(Guid? profileId);
         List<HelicopterModel> GetAllHelicoptersModels();
-        HelicopterModel GetHelicopterModel(int helicopterModelId);
+        HelicopterModel GetHelicopterModel(int? helicopterModelId);
         string? GetCityByPostalCode(string postalCode);
 
         Profile GetProfileByProfileId(Guid profileId);

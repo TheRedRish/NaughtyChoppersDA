@@ -92,8 +92,7 @@ namespace NaughtyChoppersDA.Repositories
                             profile.ProfileId = reader.GetGuid(0);
                             profile.Name = reader.GetString(1);
                             profile.DateOfBirth = reader.GetDateTime(2);
-                            profile.Model = new();
-                            profile.Model.Id = reader.GetInt32(3);
+                            profile.Model = GetHelicopterModel(reader.GetInt32(3));
                             if (!reader.IsDBNull(4))
                             {
                                 long bytesRead;
@@ -155,8 +154,7 @@ namespace NaughtyChoppersDA.Repositories
                             profile.ProfileId = reader.GetGuid(0);
                             profile.Name = reader.GetString(1);
                             profile.DateOfBirth = reader.GetDateTime(2);
-                            profile.Model = new();
-                            profile.Model.Id = reader.GetInt32(3);
+                            profile.Model = GetHelicopterModel(reader.GetInt32(3));
                             if (!reader.IsDBNull(4))
                             {
                                 long bytesRead;
@@ -372,6 +370,7 @@ namespace NaughtyChoppersDA.Repositories
                 throw new UserException("Unknown error");
             }
         }
+
         private void RemoveAllHobbyInterestsFromProfile(Guid? profileId)
         {
             throw new NotImplementedException();
@@ -416,7 +415,7 @@ namespace NaughtyChoppersDA.Repositories
             return helicopterModelInterests;
         }
 
-        public HelicopterModel GetHelicopterModel(int helicopterModelId)
+        public HelicopterModel GetHelicopterModel(int? helicopterModelId)
         {
             HelicopterModel helicopterModel = new HelicopterModel();
             try
@@ -425,17 +424,19 @@ namespace NaughtyChoppersDA.Repositories
                 {
                     connection.Open();
 
-                    SqlCommand command = new SqlCommand("GetHelipcopterModel", connection);
+                    SqlCommand command = new SqlCommand("GetHelicopterModel", connection);
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.AddWithValue("@HelicopterModelId", SqlDbType.Int).Value = helicopterModelId;
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
                         if (reader.Read())
                         {
+                            helicopterModel.Id = helicopterModelId;
                             helicopterModel.Name = reader.GetString(0);
                         }
                     }
                 }
+                return helicopterModel;
             }
             catch (SqlException)
             {
@@ -445,7 +446,7 @@ namespace NaughtyChoppersDA.Repositories
             {
                 throw new UserException("Unknown error");
             }
-            return helicopterModel;
+            
         }// TODO: might be redundant
 
         public List<HelicopterModel> GetAllHelicoptersModels()
