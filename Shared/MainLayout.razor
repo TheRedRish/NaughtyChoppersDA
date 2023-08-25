@@ -1,6 +1,7 @@
 ﻿@inherits LayoutComponentBase
 @using NaughtyChoppersDA.Services
 @inject IUserService UserService
+@inject IProfileService ProfileService
 
 <PageTitle>NaughtyChoppersDA</PageTitle>
 
@@ -9,6 +10,21 @@
         <MudThemeProvider />
         <MudDialogProvider />
         <MudSnackbarProvider />
+        <div class="top-row px-4">
+            @if (UserService.User == null)
+            {
+                <a href="/user-login">Login</a>
+                <a href="/user-register">Register</a>
+            }
+
+            @if (UserService.User != null && ProfileService.Profile == null)
+            {
+                <a href="/create-profile">Create Profile</a>
+            }
+
+            <a href="chat/99676D30-77B0-493D-B78B-D81405D44207">chat</a>
+            <a href="/">Index</a>
+        </div>
         <article class="content px-4">
             @Body
         </article>

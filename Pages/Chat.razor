@@ -1,0 +1,132 @@
+﻿@page "/chat/{otherProfileIdString}"
+@inject IProfileService ProfileService
+
+@if (ProfileService.Profile != null && otherProfile != null)
+{
+    <MudContainer Class="chat-container" MaxWidth="MaxWidth.ExtraSmall">
+        <MudPaper Elevation="3" Class="p-2">
+            <MudContainer Class="text-center">
+                <MudText Typo="Typo.h4" Class="mb-2">
+                    @otherProfile.Name
+                </MudText>
+            </MudContainer>
+            <div class="chat-messages">
+                @foreach (var message in messages)
+                {
+                    if (message.Sender == ProfileService.Profile)
+                    {
+                        <div class="d-flex flex-wrap justify-end my-3">
+                            <MudText Class="chat-message mud-theme-primary px-3 py-2 mx-2 rounded-s-xl rounded-te-xl " title="@ProfileService.Profile.Name">@message.Text </MudText>
+                            <MudImage Class="m-1 align-self-end rounded-circle" Src="@(profileImage)" Width="40" Height="40" />
+                            <MudText Class="timestamp-text timestamp-text--right">
+                                @GetTimeStamp(@message.Timestamp)
+                            </MudText>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="d-flex flex-wrap my-3">
+                            <MudImage Class="m-1 align-self-end rounded-circle" Src="@(otherProfileImage)" Width="40" Height="40" />
+                            <MudText Class="chat-message mud-theme-secondary flex-wrap px-3 py-2 mx-2 rounded-e-xl rounded-ts-xl" title="@otherProfile.Name">@message.Text </MudText>
+                            <MudText Class="timestamp-text px-2 timestamp-text--left">
+                                @GetTimeStamp(@message.Timestamp)
+                            </MudText>
+                        </div>
+                    }
+                    counter++;
+                }
+            </div>
+            <div class="d-flex">
+                <MudTextField Class="flex-grow-1 mt-0" @bind-Value="messageText" Variant="Variant.Outlined" FullWidth="true" Placeholder="Type your message..." />
+                <MudButton Class="py-0" Color="Color.Primary" Variant="Variant.Filled" @onclick="SendMessage">Send</MudButton>
+            </div>
+        </MudPaper>
+    </MudContainer>
+}
+<style>
+    .chat-message {
+        max-width: 70%;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+
+    .timestamp-text {
+        display: block;
+        font-size: 12px;
+        width: 100%;
+    }
+
+    .timestamp-text--right {
+        text-align: end;
+    }
+
+    .timestamp-text--left {
+        text-align: end;
+    }
+</style>
+@code {
+    [Parameter]
+    public string otherProfileIdString { get; set; }
+
+    private Guid otherProfileId;
+
+    private List<ChatMessage> messages = new List<ChatMessage>();
+    private string messageText;
+    private string profileImage = "data:image/*;base64,";
+    private string otherProfileImage = "data:image/*;base64,";
+    private Profile otherProfile;
+    private int counter = 0;
+
+    protected override void OnInitialized()
+    {
+        if (otherProfileIdString != null)
+        {
+            otherProfileId = new Guid(otherProfileIdString);
+        }
+        if (ProfileService.Profile == null)
+        {
+            NavigationManager.NavigateTo("/");
+            return;
+        }
+        if (ProfileService.Profile.ProfileImage != null)
+        {
+            profileImage += ConvertProfileImageToBase64(ProfileService.Profile.ProfileImage);
+        }
+        otherProfile = ProfileService.GetProfileByProfileId(otherProfileId);
+        if (otherProfile.ProfileImage != null)
+        {
+            otherProfileImage += ConvertProfileImageToBase64(otherProfile.ProfileImage);
+        }
+    }
+    private string GetTimeStamp(DateTime time)
+    {
+        DateTime currentDateTime = DateTime.UtcNow;
+        TimeSpan timeDifference = currentDateTime - time;
+
+        if (timeDifference.Days == 0)
+        {
+            return time.ToString("HH:mm");
+        }
+        else
+        {
+            return time.ToString("MM/dd/yyyy");
+        }
+    }
+    private string ConvertProfileImageToBase64(Byte[] imageInByteArray)
+    {
+        return Convert.ToBase64String(ProfileService.Profile.ProfileImage);
+    }
+    private void SendMessage()
+    {
+        if (!string.IsNullOrEmpty(messageText) && ProfileService.Profile != null)
+        {
+            messages.Add(new ChatMessage
+                {
+                    Text = messageText,
+                    Sender = ProfileService.Profile,
+                    Timestamp = DateTime.UtcNow
+                });
+            messageText = string.Empty;
+        }
+    }
+}

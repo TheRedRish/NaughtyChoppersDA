@@ -199,7 +199,7 @@
 
     private void GetProfile()
     {
-        ProfileService.Profile = ProfileService.GetProfile(UserService.User.UserId);
+        ProfileService.Profile = ProfileService.GetProfileByUserId(UserService.User.UserId);
     }
 
     private void DeleteProfile()
