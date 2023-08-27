@@ -11,7 +11,20 @@ namespace NaughtyChoppersDA.Services
         {
             _repository = profileRepository;
         }
-        public Profile? Profile { get; set; }
+
+        public event EventHandler ProfileUpdated;
+
+        private Profile? _profile;
+
+        public Profile? Profile
+        {
+            get => _profile;
+            set
+            {
+                _profile = value;
+                ProfileUpdated?.Invoke(this, EventArgs.Empty);
+            }
+        }
 
         public string CreateProfile(Profile profile, User user)
         {
