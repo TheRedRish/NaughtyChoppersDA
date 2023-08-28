@@ -141,7 +141,6 @@ namespace NaughtyChoppersDA.Repositories
 
         public Profile? GetProfileByUserId(Guid? userId)
         {
-            Profile profile = new();
             try
             {
                 using (SqlConnection connection = new SqlConnection(myDbConnectionString))
@@ -155,6 +154,7 @@ namespace NaughtyChoppersDA.Repositories
                     {
                         if (reader.Read())
                         {
+                            Profile profile = new();
                             profile.ProfileId = reader.GetGuid(0);
                             profile.Name = reader.GetString(1);
                             profile.DateOfBirth = reader.GetDateTime(2);
@@ -181,6 +181,14 @@ namespace NaughtyChoppersDA.Repositories
                                 }
                             }
                             profile.PostalCode = reader.GetString(5);
+
+                            profile.HobbyInterests = GetAllHobbyInterestsFromProfile(profile.ProfileId);
+                            profile.HelicopterModelInterests = GetHelicopterModelInterstsFromProfile(profile.ProfileId);
+                            if (profile.PostalCode != null)
+                            {
+                                profile.City = GetCityByPostalCode(profile.PostalCode);
+                            }
+                            return profile;
                         }
                     }
                 }
@@ -454,7 +462,7 @@ namespace NaughtyChoppersDA.Repositories
             {
                 throw new UserException("Unknown error");
             }
-            
+
         }// TODO: might be redundant
 
         public List<HelicopterModel> GetAllHelicoptersModels()

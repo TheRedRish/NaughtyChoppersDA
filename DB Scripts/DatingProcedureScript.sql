@@ -388,4 +388,3 @@ DELETE FROM ChatTable
 WHERE SenderId = @ProfileId OR ReceiverId = @ProfileId
 END
 GO
-

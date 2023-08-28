@@ -90,6 +90,7 @@
     }
 </style>
 @code {
+
     private List<Profile> matches = new();
     IMatchingRepository matchingRepository = new MatchingRepository();
 
@@ -101,8 +102,8 @@
 
     private List<ChatMessage> messages = new List<ChatMessage>();
     private string messageText;
-    private string profileImage = "data:image/*;base64,";
-    private string otherProfileImage = "data:image/*;base64,";
+    private string profileImage;
+    private string otherProfileImage;
     private Profile otherProfile;
     private int counter = 0;
     private const int UpdateIntervalSeconds = 1;
@@ -122,16 +123,16 @@
                 await Task.Delay(TimeSpan.FromSeconds(UpdateIntervalSeconds));
             }
         }
+
+        if (otherProfile.ProfileImage != null)
+        {
+            otherProfileImage = ImageUtils.ConvertProfileImageToSrcImage(otherProfile.ProfileImage);
+        }
     }
 
     protected async override Task OnInitializedAsync()
     {
         matches = await matchingRepository.GetAllMatches(ProfileService.Profile.ProfileId);
-
-        //if (otherProfileIdString != null)
-        //{
-        //    otherProfileId = new Guid(otherProfileIdString);
-        //}
         if (ProfileService.Profile == null)
         {
             NavigationManager.NavigateTo("/");
@@ -139,13 +140,14 @@
         }
         if (ProfileService.Profile.ProfileImage != null)
         {
-            profileImage += ConvertProfileImageToBase64(ProfileService.Profile.ProfileImage);
+            profileImage = ImageUtils.ConvertProfileImageToSrcImage(ProfileService.Profile.ProfileImage);
         }
 
         if(otherProfileIdString == null)
         {
             return;
         }
+        otherProfile = ProfileService.GetProfileByProfileId(otherProfileId);        
     }
 
     private string GetTimeStamp(DateTime time)
@@ -162,12 +164,7 @@
             return time.ToString("MM/dd/yyyy");
         }
     }
-
-    private string ConvertProfileImageToBase64(Byte[] imageInByteArray)
-    {
-        return Convert.ToBase64String(ProfileService.Profile.ProfileImage);
-    }
-
+      
     private void SendMessage()
     {
         if (!string.IsNullOrEmpty(messageText) && ProfileService.Profile != null && otherProfile != null)
@@ -189,7 +186,7 @@
         otherProfile = ProfileService.GetProfileByProfileId(new Guid(otherProfileIdString));
         if (otherProfile.ProfileImage != null)
         {
-            otherProfileImage += ConvertProfileImageToBase64(otherProfile.ProfileImage);
+            otherProfileImage += ImageUtils.ConvertProfileImageToSrcImage(otherProfile.ProfileImage);
         }
     }
 }
