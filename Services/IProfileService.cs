@@ -4,6 +4,7 @@ namespace NaughtyChoppersDA.Services
 {
     public interface IProfileService
     {
+        event EventHandler ProfileUpdated;
         Profile? Profile { get; set; }
         Profile GetProfileByUserId(Guid userId);
         Profile GetProfileByProfileId(Guid profileId);

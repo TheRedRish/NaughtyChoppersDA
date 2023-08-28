@@ -5,6 +5,7 @@
         public Guid UserId { get; set; }
         public string UserName { get; set; }
 
+        public User() { }
         public User(Guid userId, string userName)
         {
             UserId = userId;

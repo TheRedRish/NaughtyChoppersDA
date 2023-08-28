@@ -127,10 +127,10 @@
     private IEnumerable<string> selectedModelInterests { get; set; } = new HashSet<string>();
     private EditContext editContext;
     private ValidationMessageStore validationMessageStore;
-    MudForm form;
+    MudForm? form;
     bool success;
 
-    protected override void OnInitialized()
+    protected async override Task OnInitializedAsync()
     {
         if (UserService.User == null)
         {

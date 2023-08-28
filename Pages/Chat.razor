@@ -66,23 +66,31 @@
 </style>
 @code {
     [Parameter]
-    public string otherProfileIdString { get; set; }
+    public string? otherProfileIdString { get; set; }
 
     private Guid otherProfileId;
 
     private List<ChatMessage> messages = new List<ChatMessage>();
     private string messageText;
-    private string profileImage = "data:image/*;base64,";
-    private string otherProfileImage = "data:image/*;base64,";
+    private string profileImage;
+    private string otherProfileImage;
     private Profile otherProfile;
     private int counter = 0;
 
-    protected override void OnInitialized()
+    protected override void OnParametersSet()
     {
         if (otherProfileIdString != null)
         {
             otherProfileId = new Guid(otherProfileIdString);
         }
+        if (otherProfile.ProfileImage != null)
+        {
+            otherProfileImage = ImageUtils.ConvertProfileImageToSrcImage(otherProfile.ProfileImage);
+        }
+    }
+
+    protected async override Task OnInitializedAsync()
+    {
         if (ProfileService.Profile == null)
         {
             NavigationManager.NavigateTo("/");
@@ -90,13 +98,9 @@
         }
         if (ProfileService.Profile.ProfileImage != null)
         {
-            profileImage += ConvertProfileImageToBase64(ProfileService.Profile.ProfileImage);
+            profileImage = ImageUtils.ConvertProfileImageToSrcImage(ProfileService.Profile.ProfileImage);
         }
-        otherProfile = ProfileService.GetProfileByProfileId(otherProfileId);
-        if (otherProfile.ProfileImage != null)
-        {
-            otherProfileImage += ConvertProfileImageToBase64(otherProfile.ProfileImage);
-        }
+        otherProfile = ProfileService.GetProfileByProfileId(otherProfileId);        
     }
     private string GetTimeStamp(DateTime time)
     {
@@ -111,10 +115,6 @@
         {
             return time.ToString("MM/dd/yyyy");
         }
-    }
-    private string ConvertProfileImageToBase64(Byte[] imageInByteArray)
-    {
-        return Convert.ToBase64String(ProfileService.Profile.ProfileImage);
     }
     private void SendMessage()
     {

@@ -15,7 +15,7 @@ namespace NaughtyChoppersDA.Repositories
 
         Profile GetProfileByProfileId(Guid profileId);
 
-        Profile GetProfileByUserId(Guid? userId);
+        Profile? GetProfileByUserId(Guid? userId);
         Guid? GetProfileId(Guid? userId);
         void UpdateProfile(Profile profile);
     }

@@ -5,28 +5,94 @@
 
 <PageTitle>NaughtyChoppersDA</PageTitle>
 
-<div class="page">
-    <main>
-        <MudThemeProvider />
-        <MudDialogProvider />
-        <MudSnackbarProvider />
-        <div class="top-row px-4">
-            @if (UserService.User == null)
-            {
-                <a href="/user-login">Login</a>
-                <a href="/user-register">Register</a>
-            }
+<MudThemeProvider />
 
-            @if (UserService.User != null && ProfileService.Profile == null)
-            {
-                <a href="/create-profile">Create Profile</a>
-            }
+<MudLayout>
+    <MudAppBar Elevation="1">
 
-            <a href="chat/99676D30-77B0-493D-B78B-D81405D44207">chat</a>
-            <a href="/">Index</a>
-        </div>
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
-</div>
+        @if (ProfileService.Profile != null)
+        {
+            <MudLink Href="/Chat" Class="text-white mx-3">Chat</MudLink>
+            <MudLink Href="/DatingPage" Class="text-white mx-3">Dating Page</MudLink>
+            <MudSpacer />            
+            <MudMenu ActivationEvent="@MouseEvent.MouseOver" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter">
+                <ActivatorContent>
+                        <MudImage Class="rounded-circle" Src="@GetImageToDisplay()" Width="30" Height="30" />
+                </ActivatorContent>
+                <ChildContent> @* TODO: Fill this out with something edit profile or some shit *@
+                    <MudMenuItem>Profile</MudMenuItem>
+                    <MudMenuItem>Theme</MudMenuItem>
+                    <MudMenuItem>Usage</MudMenuItem>
+                    <MudMenuItem>Sign Out</MudMenuItem>
+                </ChildContent>
+            </MudMenu>
+        }
+        else if (ProfileService.Profile == null && UserService.User != null)
+        {
+            <MudSpacer />
+            <MudTooltip Class="mx-3" Text="Create Profile">
+                <MudIconButton Href="/create-profile" Icon="@Icons.Material.Filled.PersonAddAlt1" Color="Color.Default" Size="Size.Large" />
+            </MudTooltip>
+        }
+        else
+        {
+            <MudSpacer />
+        }
+        @if (UserService.User == null)
+        {
+            <MudTooltip Class="mx-3" Text="Create User">
+                <MudIconButton  Href="/user-register" Icon="@Icons.Material.Filled.AddCircle" Color="Color.Default" Size="Size.Large" />
+            </MudTooltip>
+            <MudTooltip Class="mx-3" Text="Login">
+                <MudIconButton Href="/user-login" Icon="@Icons.Material.Filled.Login" Color="Color.Info" Size="Size.Large" />
+            </MudTooltip> 
+        }
+        else
+        {
+            <MudTooltip Text="Logout">
+                <MudIconButton OnClick="LogOut" Icon="@Icons.Material.Filled.Logout" Color="Color.Error" Size="Size.Large" />
+            </MudTooltip>
+        }
+    </MudAppBar>
+    <MudMainContent>
+        @Body
+    </MudMainContent>
+</MudLayout>
+
+<style>
+    .text-white {
+        color: white !important;
+    }
+</style>
+@code {
+
+    private void HandleProfileUpdated(object sender, EventArgs e)
+    {
+        StateHasChanged();
+    }
+
+    protected override void OnInitialized()
+    {
+        ProfileService.ProfileUpdated += HandleProfileUpdated;
+    }
+
+    public void Dispose()
+    {
+        ProfileService.ProfileUpdated -= HandleProfileUpdated;
+    }
+
+    private void LogOut()
+    {
+        UserService.LogOut();
+        ProfileService.Profile = null;
+    }
+
+    private string GetImageToDisplay()
+    {
+        if (ProfileService.Profile != null && ProfileService.Profile.ProfileImage != null)
+        {
+            return ImageUtils.ConvertProfileImageToSrcImage(ProfileService.Profile.ProfileImage);
+        }
+        return @NavigationManager.BaseUri + "/Pictures/DefaultProfilePicture.jpg";
+    }
+}
