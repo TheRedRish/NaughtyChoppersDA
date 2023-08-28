@@ -18,7 +18,8 @@
                 <MudText Typo="Typo.h6">Matches</MudText>
             </MudDrawerHeader>
             <MudNavMenu>
-                    @foreach(var match in matches)
+            <MudTextField @bind-Value="searchText" Placeholder="Search" Variant="Variant.Outlined" />
+                    @foreach (var match in matches.Where(m => m.Name!.ToLower().Contains(searchText.ToLower())))
                     {
                         <div style="display: flex; text-align: center;">
                             <MudImage Class="m-1 align-self-end rounded-circle" Src="@(profileImage)" Width="40" Height="40" />
@@ -27,17 +28,17 @@
                     }    
                 </MudNavMenu>
             </MudDrawer>
-            <MudMainContent Class="pt-16 px-16">
+            <MudMainContent Class="pt-0 px-0">
                 @if(otherProfileIdParameter != null)
                 {
-                    <MudContainer Class="chat-container" MaxWidth="MaxWidth.ExtraSmall">
-                        <MudPaper Elevation="3" Class="p-2">
+                    <MudContainer Class="chat-container" MaxWidth="MaxWidth.ExtraExtraLarge">
+                        <MudPaper Elevation="10" Class="p-2">
                             <MudContainer Class="text-center">
                                 <MudText Typo="Typo.h4" Class="mb-2">
                                     @otherProfile.Name
                                 </MudText>
                             </MudContainer>
-                            <div class="chat-messages" style="max-height: 400px; min-height: 400px; overflow-y: auto;">
+                            <div class="chat-messages" style="max-height: 80vh; min-height: 80vh; overflow-y: auto;">
                                 @foreach (var message in messages)
                                 {
                                     if (message.Sender.ProfileId == ProfileService.Profile.ProfileId)
@@ -63,7 +64,7 @@
                                     counter++;
                                 }
                             </div>
-                            <div class="d-flex">
+                            <div class="d-flex" style="position: sticky;">
                                 <MudTextField Class="flex-grow-1 mt-0" @bind-Value="messageText" Variant="Variant.Outlined" FullWidth="true" Placeholder="Type your message..." />
                                 <MudButton Class="py-0" Color="Color.Primary" Variant="Variant.Filled" @onclick="SendMessage">Send</MudButton>
                             </div>
@@ -113,6 +114,7 @@
     private string profileImage;
     private string otherProfileImage;
     private Profile otherProfile;
+    private string searchText = "";
     private int counter = 0;
     private const int UpdateIntervalSeconds = 1;
     public bool Loading = false;
