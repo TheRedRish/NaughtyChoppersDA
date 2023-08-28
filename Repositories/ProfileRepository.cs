@@ -11,6 +11,7 @@ using System.Runtime.CompilerServices;
 
 namespace NaughtyChoppersDA.Repositories
 {
+    //Rasmus Note: Spørg Niels om ExecuteNonQueryAsync, Reader.ReadAsync og ExecuteReaderAsync er practical eller om det er en waste!
     public class ProfileRepository : IProfileRepository
     {
         private string myDbConnectionString = AccessToDb.ConnectionString;
@@ -32,7 +33,7 @@ namespace NaughtyChoppersDA.Repositories
                     command.Parameters.AddWithValue("@PostalCode", SqlDbType.NVarChar).Value = profile.PostalCode;
                     command.Parameters.AddWithValue("@UserId", SqlDbType.UniqueIdentifier).Value = user.UserId;
 
-                    command.ExecuteNonQuery();
+                    await command.ExecuteNonQueryAsync();
                 }
 
                 profile.ProfileId = await GetProfileId(user.UserId);
@@ -61,7 +62,7 @@ namespace NaughtyChoppersDA.Repositories
                     SqlCommand command = new SqlCommand("DeleteProfile", connection);
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.AddWithValue("@ProfileIdToDelete", SqlDbType.UniqueIdentifier).Value = profileId;
-                    command.ExecuteNonQuery();
+                    await command.ExecuteNonQueryAsync();
                 }
             }
             catch (SqlException)
@@ -88,7 +89,7 @@ namespace NaughtyChoppersDA.Repositories
                     command.Parameters.AddWithValue("@ProfileId", SqlDbType.UniqueIdentifier).Value = profileId;
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
-                        if (reader.Read())
+                        if (await reader.ReadAsync())
                         {
                             profile.ProfileId = reader.GetGuid(0);
                             profile.Name = reader.GetString(1);
@@ -153,14 +154,14 @@ namespace NaughtyChoppersDA.Repositories
                     command.Parameters.AddWithValue("@UserId", SqlDbType.UniqueIdentifier).Value = userId;
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
-                        if (reader.Read())
+                        if (await reader.ReadAsync())
                         {
                             Profile profile = new();
                             profile.ProfileId = reader.GetGuid(0);
                             profile.Name = reader.GetString(1);
                             profile.DateOfBirth = reader.GetDateTime(2);
                             profile.Model = await GetHelicopterModel(reader.GetInt32(3));
-                            if (!reader.IsDBNull(4))
+                            if (!await reader.IsDBNullAsync(4))
                             {
                                 long bytesRead;
                                 long fieldOffset = 0;
@@ -220,7 +221,7 @@ namespace NaughtyChoppersDA.Repositories
                     command.Parameters.AddWithValue("@UserId", SqlDbType.UniqueIdentifier).Value = userId;
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
-                        if (reader.Read())
+                        if (await reader.ReadAsync())
                         {
                             profileId = reader.GetGuid(0);
                         }
@@ -252,7 +253,7 @@ namespace NaughtyChoppersDA.Repositories
                     command.Parameters.AddWithValue("@PostalCode", SqlDbType.NVarChar).Value = postalCode;
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
-                        if (reader.Read())
+                        if (await reader.ReadAsync())
                         {
                             city = reader.GetString(0);
                         }
@@ -286,7 +287,7 @@ namespace NaughtyChoppersDA.Repositories
                     command.Parameters.AddWithValue("@ProfileId", SqlDbType.UniqueIdentifier).Value = profileId;
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
-                        while (reader.Read())
+                        while (await reader.ReadAsync())
                         {
                             interestsList.Add(new HobbyInterest { Id = reader.GetInt32(0), Name = reader.GetString(1) });
                         }
@@ -317,7 +318,7 @@ namespace NaughtyChoppersDA.Repositories
                     command.CommandType = CommandType.StoredProcedure;
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
-                        while (reader.Read())
+                        while (await reader.ReadAsync())
                         {
                             interestsList.Add(new HobbyInterest { Id = reader.GetInt32(0), Name = reader.GetString(1) });
                         }
@@ -350,7 +351,7 @@ namespace NaughtyChoppersDA.Repositories
                             command.CommandType = CommandType.StoredProcedure;
                             command.Parameters.AddWithValue("@ProfileId", SqlDbType.UniqueIdentifier).Value = profileId;
                             command.Parameters.AddWithValue("@InterestId", SqlDbType.Int).Value = hobbyInterest.Id;
-                            command.ExecuteNonQuery();
+                            await command.ExecuteNonQueryAsync();
                         }
                         catch (SqlException ex)
                         {
@@ -373,15 +374,15 @@ namespace NaughtyChoppersDA.Repositories
             }
         }
 
-        private void RemoveAllHobbyInterestsFromProfile(Guid? profileId)
-        {
-            throw new NotImplementedException();
-        }
+        //private void RemoveAllHobbyInterestsFromProfile(Guid? profileId)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        private void RemoveHobbyInterestFromProfile(Guid? profileId, HobbyInterest hobbyInterest)
-        {
-            throw new NotImplementedException();
-        }
+        //private void RemoveHobbyInterestFromProfile(Guid? profileId, HobbyInterest hobbyInterest)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
         #endregion
         #region HelicopterModel
@@ -399,7 +400,7 @@ namespace NaughtyChoppersDA.Repositories
                     command.Parameters.AddWithValue("@ProfileId", SqlDbType.UniqueIdentifier).Value = profileId;
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
-                        while (reader.Read())
+                        while (await reader.ReadAsync())
                         {
                             helicopterModelInterests.Add(new HelicopterModel { Id = reader.GetInt32(0), Name = reader.GetString(1) });
                         }
@@ -431,7 +432,7 @@ namespace NaughtyChoppersDA.Repositories
                     command.Parameters.AddWithValue("@HelicopterModelId", SqlDbType.Int).Value = helicopterModelId;
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
-                        if (reader.Read())
+                        if (await reader.ReadAsync())
                         {
                             helicopterModel.Id = helicopterModelId;
                             helicopterModel.Name = reader.GetString(0);
@@ -464,7 +465,7 @@ namespace NaughtyChoppersDA.Repositories
                     command.CommandType = CommandType.StoredProcedure;
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
-                        while (reader.Read())
+                        while (await reader.ReadAsync())
                         {
                             helicopterModelList.Add(new HelicopterModel { Id = reader.GetInt32(0), Name = reader.GetString(1) });
                         }
@@ -497,7 +498,7 @@ namespace NaughtyChoppersDA.Repositories
                             command.CommandType = CommandType.StoredProcedure;
                             command.Parameters.AddWithValue("@ProfileId", SqlDbType.UniqueIdentifier).Value = profileId;
                             command.Parameters.AddWithValue("@ModelId", SqlDbType.Int).Value = helicopterModel.Id;
-                            command.ExecuteNonQuery();
+                            await command.ExecuteNonQueryAsync();
                         }
                         catch (SqlException ex)
                         {
@@ -519,16 +520,6 @@ namespace NaughtyChoppersDA.Repositories
                 throw new UserException("Unknown error");
             }
         }
-
-        //private void RemoveAllHelicopterModelInterestsFromProfile(Guid? profileId)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //private void RemoveHelicopterModelInterestFromProfile(Guid? profileId, HelicopterModel helicopterModel)
-        //{
-        //    throw new NotImplementedException();
-        //}
 
         #endregion
 

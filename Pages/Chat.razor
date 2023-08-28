@@ -164,19 +164,11 @@
         }
     }
       
-    private void SendMessage()
+    private async void SendMessage()
     {
         if (!string.IsNullOrEmpty(messageText) && ProfileService.Profile != null && otherProfile != null)
         {
-            //messages.Add(new ChatMessage
-            //    {
-            //        Message = messageText,
-            //        Sender = ProfileService.Profile,
-            //        Timestamp = DateTime.UtcNow
-            //    });
-            //messageText = string.Empty;
-
-            chatRepositories.SendMessage((Guid)ProfileService.Profile.ProfileId, (Guid)otherProfile.ProfileId, messageText);
+            await chatRepositories.SendMessage((Guid)ProfileService.Profile.ProfileId, (Guid)otherProfile.ProfileId, messageText);
             messageText = string.Empty;
         }
     }

@@ -171,8 +171,6 @@
 
                 // You can set the byte array to the profile's image property
                 profile.ProfileImage = imageDataBytes;
-
-                // You can also handle storing the byte array in your database
             }
         }
     }
@@ -192,11 +190,11 @@
         ProfileService.Profile = await ProfileService.GetProfileByUserId(UserService.User.UserId);
     }
 
-    private void DeleteProfile()
+    private async void DeleteProfile()
     {
         if (ProfileService.Profile?.ProfileId != null)
         {
-            ProfileService.DeleteProfile((Guid)ProfileService.Profile.ProfileId);
+            await ProfileService.DeleteProfile((Guid)ProfileService.Profile.ProfileId);
         }
     }
 
@@ -214,7 +212,7 @@
 
         if (UserService.User != null)
         {
-            ProfileService.CreateProfile(profile, UserService.User);
+            await ProfileService.CreateProfile(profile, UserService.User);
         }
         NavigationManager.NavigateTo("/");
     }

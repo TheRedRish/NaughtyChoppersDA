@@ -11,5 +11,8 @@ namespace NaughtyChoppersDA.Repositories
 
         public Task<List<Profile>> GetAllMatches(Guid? profileId);
 
-	}
+        public Task<List<Guid>> ListOfLikersAndLiked(Guid profileId);
+
+
+    }
 }

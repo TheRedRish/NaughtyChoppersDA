@@ -32,7 +32,7 @@ namespace NaughtyChoppersDA.Repositories
 
                         using (SqlDataReader reader = command.ExecuteReader())
                         {
-                            while (reader.Read())
+                            while (await reader.ReadAsync())
                             {
                                 profiles.Add(await GetProfileByProfileId(reader.GetGuid(0)));
                             }
@@ -51,12 +51,12 @@ namespace NaughtyChoppersDA.Repositories
             }
         }
 
-        public List<Guid> ListOfLikersAndLiked(Guid profileId)
+        public async Task<List<Guid>> ListOfLikersAndLiked(Guid profileId)
         {
             try
             {
                 List<Guid> profileIds = new();
-                using (SqlConnection connection = new SqlConnection(myDbConnectionString))
+                await using (SqlConnection connection = new SqlConnection(myDbConnectionString))
                 {
                     connection.Open();
 
@@ -71,7 +71,7 @@ namespace NaughtyChoppersDA.Repositories
 
                         using (SqlDataReader reader = command.ExecuteReader())
                         {
-                            while (reader.Read())
+                            while (await reader.ReadAsync())
                             {
                                 profileIds.Add(reader.GetGuid(0));
                             }
@@ -80,7 +80,7 @@ namespace NaughtyChoppersDA.Repositories
                         command.CommandText = "GetLikersId";
                         using (SqlDataReader reader = command.ExecuteReader())
                         {
-                            while (reader.Read())
+                            while (await reader.ReadAsync())
                             {
                                 profileIds.Add(reader.GetGuid(0));
                             }
@@ -103,7 +103,7 @@ namespace NaughtyChoppersDA.Repositories
         {
             List<Profile> profileList = await GetProfilesWithMatchingModelInterest(profileId);
 
-            List<Guid> profileIds = ListOfLikersAndLiked(profileId);
+            List<Guid> profileIds = await ListOfLikersAndLiked(profileId);
 
             foreach (Guid id in profileIds)
             {
@@ -178,7 +178,7 @@ namespace NaughtyChoppersDA.Repositories
 
 						await using (SqlDataReader reader = command.ExecuteReader())
 						{
-							while (reader.Read())
+							while (await reader.ReadAsync())
 							{
 								profiles.Add(await GetProfileByProfileId(reader.GetGuid(0)));
 							}
