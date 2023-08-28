@@ -22,7 +22,7 @@ namespace NaughtyChoppersDA.Repositories
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.AddWithValue("@Username", SqlDbType.NVarChar).Value = userName;
                     command.Parameters.AddWithValue("@Password", SqlDbType.NVarChar).Value = password;
-                    command.ExecuteNonQuery();                 
+                    await command.ExecuteNonQueryAsync();                 
                 }
             }
             catch (SqlException ex)
@@ -54,7 +54,7 @@ namespace NaughtyChoppersDA.Repositories
                     SqlCommand command = new SqlCommand("RemoveUser", connection);
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.AddWithValue("@Id", SqlDbType.UniqueIdentifier).Value = user.UserId;
-                    command.ExecuteNonQuery();
+                    await command.ExecuteNonQueryAsync();
                 }
             }
             catch (SqlException)
@@ -83,7 +83,7 @@ namespace NaughtyChoppersDA.Repositories
                     command.Parameters.AddWithValue("@password", SqlDbType.NVarChar).Value = password;
                     using(SqlDataReader reader = command.ExecuteReader())
                     {
-                        if (reader.Read())
+                        if (await reader.ReadAsync())
                         {
                             User user = new(reader.GetGuid(0), reader.GetString(1));
                             return user;
@@ -115,7 +115,7 @@ namespace NaughtyChoppersDA.Repositories
                     command.Parameters.AddWithValue("@userName", SqlDbType.UniqueIdentifier).Value = userName;
                     using(SqlDataReader reader = command.ExecuteReader())
                     {
-                        if (reader.Read())
+                        if (await reader.ReadAsync())
                         {
                             return reader.GetInt32(0) == 1 ? true : false;
                         }

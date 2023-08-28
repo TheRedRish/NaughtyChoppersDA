@@ -35,7 +35,7 @@ namespace NaughtyChoppersDA.Repositories
                             {
                                 ChatMessage chatMessage = new();
                                 Guid guid = reader.GetGuid(0);
-                                chatMessage.Sender = GetProfileByProfileId(reader.GetGuid(0));
+                                chatMessage.Sender = await GetProfileByProfileId(reader.GetGuid(0));
                                 chatMessage.Message = reader.GetString(1);
                                 chatMessage.Timestamp = reader.GetDateTime(2);
                                 chatMessages.Add(chatMessage);
@@ -113,7 +113,7 @@ namespace NaughtyChoppersDA.Repositories
                         {
                             while (reader.Read())
                             {
-                                chatMessage.Sender = GetProfileByProfileId(reader.GetGuid(0));
+                                chatMessage.Sender = await GetProfileByProfileId(reader.GetGuid(0));
                                 chatMessage.Message = reader.GetString(1);
                                 chatMessage.Timestamp = reader.GetDateTime(2);
                                 currentChat.Add(chatMessage);

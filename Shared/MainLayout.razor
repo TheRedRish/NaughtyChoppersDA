@@ -1,5 +1,6 @@
 ﻿@inherits LayoutComponentBase
 @using NaughtyChoppersDA.Services
+@inject NavigationManager NavigationManager
 @inject IUserService UserService
 @inject IProfileService ProfileService
 
@@ -85,6 +86,7 @@
     {
         UserService.LogOut();
         ProfileService.Profile = null;
+        NavigationManager.NavigateTo("/");
     }
 
     private string GetImageToDisplay()

@@ -144,15 +144,15 @@
         editContext = new EditContext(profile);
         validationMessageStore = new ValidationMessageStore(editContext);
 
-        hobbyInterests = ProfileService.GetAllHobbyInterests();
-        helicopterModels = ProfileService.GetAllHelicopterModels();
+        hobbyInterests = await ProfileService.GetAllHobbyInterests();
+        helicopterModels = await ProfileService.GetAllHelicopterModels();
     }
 
-    private void FetchCity()
+    private async Task FetchCity()
     {
         if (!string.IsNullOrEmpty(profile.PostalCode))
         {
-            profile.City = ProfileService.GetCityByPostalCode(profile.PostalCode);
+            profile.City = await ProfileService.GetCityByPostalCode(profile.PostalCode);
         }
     }
 
@@ -187,9 +187,9 @@
         profile.HelicopterModelInterests = filteredHelicopterModelInterests;
     }
 
-    private void GetProfile()
+    private async Task GetProfile()
     {
-        ProfileService.Profile = ProfileService.GetProfileByUserId(UserService.User.UserId);
+        ProfileService.Profile = await ProfileService.GetProfileByUserId(UserService.User.UserId);
     }
 
     private void DeleteProfile()

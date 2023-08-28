@@ -182,7 +182,7 @@
     }
     private async Task UpdateOtherProfile()
     {
-        otherProfile = ProfileService.GetProfileByProfileId(new Guid(otherProfileIdString));
+        otherProfile = await ProfileService.GetProfileByProfileId(new Guid(otherProfileIdString));
         if (otherProfile.ProfileImage != null)
         {
             otherProfileImage += ImageUtils.ConvertProfileImageToSrcImage(otherProfile.ProfileImage);

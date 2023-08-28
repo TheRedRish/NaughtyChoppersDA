@@ -12,12 +12,12 @@ namespace NaughtyChoppersDA.Repositories
     {
         private string myDbConnectionString = AccessToDb.ConnectionString;
 
-        public List<Profile> GetProfilesWithMatchingModelInterest(Guid profileId)
+        public async Task<List<Profile>> GetProfilesWithMatchingModelInterest(Guid profileId)
         {
             try
             {
                 List<Profile> profiles = new List<Profile>();
-                using (SqlConnection connection = new SqlConnection(myDbConnectionString))
+                await using (SqlConnection connection = new SqlConnection(myDbConnectionString))
                 {
                     connection.Open();
 
@@ -34,7 +34,7 @@ namespace NaughtyChoppersDA.Repositories
                         {
                             while (reader.Read())
                             {
-                                profiles.Add(GetProfileByProfileId(reader.GetGuid(0)));
+                                profiles.Add(await GetProfileByProfileId(reader.GetGuid(0)));
                             }
                         }
                     }
@@ -99,9 +99,9 @@ namespace NaughtyChoppersDA.Repositories
             }
         }
 
-        public List<Profile> GetFilteredListOfProfiles(Guid profileId)
+        public async Task<List<Profile>> GetFilteredListOfProfiles(Guid profileId)
         {
-            List<Profile> profileList = GetProfilesWithMatchingModelInterest(profileId);
+            List<Profile> profileList = await GetProfilesWithMatchingModelInterest(profileId);
 
             List<Guid> profileIds = ListOfLikersAndLiked(profileId);
 
@@ -126,11 +126,11 @@ namespace NaughtyChoppersDA.Repositories
             }
         }
 
-        public async void LikeProfileAsync(Guid myProfileId, Guid theirProfileId, bool? likedBack)
+        public async Task LikeProfileAsync(Guid myProfileId, Guid theirProfileId, bool? likedBack)
         {
             try
             {
-                using (SqlConnection connection = new SqlConnection(myDbConnectionString))
+                await using(SqlConnection connection = new SqlConnection(myDbConnectionString))
                 {
                     connection.Open();
 
@@ -180,7 +180,7 @@ namespace NaughtyChoppersDA.Repositories
 						{
 							while (reader.Read())
 							{
-								profiles.Add(GetProfileByProfileId(reader.GetGuid(0)));
+								profiles.Add(await GetProfileByProfileId(reader.GetGuid(0)));
 							}
 						}
 					}

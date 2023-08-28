@@ -4,19 +4,30 @@ namespace NaughtyChoppersDA.Repositories
 {
     public interface IProfileRepository
     {
-        void CreateProfile(Profile profile, User user);
-        void DeleteProfile(Guid? profileId); // TODO: Remember likes and chat
-        List<HobbyInterest> GetAllHobbyInterests();
-        List<HobbyInterest> GetAllHobbyInterestsFromProfile(Guid? profileId);
-        List<HelicopterModel> GetHelicopterModelInterstsFromProfile(Guid? profileId);
-        List<HelicopterModel> GetAllHelicoptersModels();
-        HelicopterModel GetHelicopterModel(int? helicopterModelId);
-        string? GetCityByPostalCode(string postalCode);
+        Task CreateProfile(Profile profile, User user);
 
-        Profile GetProfileByProfileId(Guid profileId);
+        Task DeleteProfile(Guid? profileId); // TODO: Remember likes and chat
 
-        Profile? GetProfileByUserId(Guid? userId);
-        Guid? GetProfileId(Guid? userId);
-        void UpdateProfile(Profile profile);
+        Task<List<HobbyInterest>> GetAllHobbyInterests();
+
+        Task<List<HobbyInterest>> GetAllHobbyInterestsFromProfile(Guid? profileId);
+
+        Task<List<HelicopterModel>> GetHelicopterModelInterstsFromProfile(Guid? profileId);
+
+        Task AddHelicopterModelInterestsToProfile(Guid? profileId, List<HelicopterModel> helicopterModels);
+
+        Task<List<HelicopterModel>> GetAllHelicoptersModels();
+
+        Task<HelicopterModel> GetHelicopterModel(int? helicopterModelId);
+
+        Task<string?> GetCityByPostalCode(string postalCode);
+
+        Task<Profile> GetProfileByProfileId(Guid profileId);
+
+        Task<Profile?> GetProfileByUserId(Guid? userId);
+
+        Task<Guid?> GetProfileId(Guid? userId);
+
+        //void UpdateProfile(Profile profile);
     }
 }

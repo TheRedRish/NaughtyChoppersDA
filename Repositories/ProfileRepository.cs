@@ -7,6 +7,7 @@ using System.Reflection.PortableExecutable;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Reflection.Metadata.Ecma335;
+using System.Runtime.CompilerServices;
 
 namespace NaughtyChoppersDA.Repositories
 {
@@ -14,11 +15,11 @@ namespace NaughtyChoppersDA.Repositories
     {
         private string myDbConnectionString = AccessToDb.ConnectionString;
 
-        public void CreateProfile(Profile profile, User user)
+        public async Task CreateProfile(Profile profile, User user)
         {
             try
             {
-                using (SqlConnection connection = new SqlConnection(myDbConnectionString))
+                await using (SqlConnection connection = new SqlConnection(myDbConnectionString))
                 {
                     connection.Open();
 
@@ -34,10 +35,10 @@ namespace NaughtyChoppersDA.Repositories
                     command.ExecuteNonQuery();
                 }
 
-                profile.ProfileId = GetProfileId(user.UserId);
+                profile.ProfileId = await GetProfileId(user.UserId);
 
-                AddHobbyInterestsToProfile(profile.ProfileId, profile.HobbyInterests!);
-                AddHelicopterModelInterestsToProfile(profile.ProfileId, profile.HelicopterModelInterests!);
+                await AddHobbyInterestsToProfile(profile.ProfileId, profile.HobbyInterests!);
+                await AddHelicopterModelInterestsToProfile(profile.ProfileId, profile.HelicopterModelInterests!);
             }
             catch (SqlException)
             {
@@ -49,11 +50,11 @@ namespace NaughtyChoppersDA.Repositories
             }
         }
 
-        public void DeleteProfile(Guid? profileId)
+        public async Task DeleteProfile(Guid? profileId)
         {
             try
             {
-                using (SqlConnection connection = new SqlConnection(myDbConnectionString))
+                await using (SqlConnection connection = new SqlConnection(myDbConnectionString))
                 {
                     connection.Open();
 
@@ -73,12 +74,12 @@ namespace NaughtyChoppersDA.Repositories
             }
         }
 
-        public Profile GetProfileByProfileId(Guid profileId)
+        public async Task<Profile> GetProfileByProfileId(Guid profileId)
         {
             Profile profile = new();
             try
             {
-                using (SqlConnection connection = new SqlConnection(myDbConnectionString))
+                await using (SqlConnection connection = new SqlConnection(myDbConnectionString))
                 {
                     connection.Open();
 
@@ -92,7 +93,7 @@ namespace NaughtyChoppersDA.Repositories
                             profile.ProfileId = reader.GetGuid(0);
                             profile.Name = reader.GetString(1);
                             profile.DateOfBirth = reader.GetDateTime(2);
-                            profile.Model = GetHelicopterModel(reader.GetInt32(3));
+                            profile.Model = await GetHelicopterModel(reader.GetInt32(3));
                             if (!reader.IsDBNull(4))
                             {
                                 long bytesRead;
@@ -120,11 +121,11 @@ namespace NaughtyChoppersDA.Repositories
                 }
                 if(profile.ProfileId != null)
                 {
-                    profile.HobbyInterests = GetAllHobbyInterestsFromProfile(profile.ProfileId);
-                    profile.HelicopterModelInterests = GetHelicopterModelInterstsFromProfile(profile.ProfileId);
+                    profile.HobbyInterests = await GetAllHobbyInterestsFromProfile(profile.ProfileId);
+                    profile.HelicopterModelInterests = await GetHelicopterModelInterstsFromProfile(profile.ProfileId);
                     if (profile.PostalCode != null)
                     {
-                        profile.City = GetCityByPostalCode(profile.PostalCode);
+                        profile.City = await GetCityByPostalCode(profile.PostalCode);
                     }
                 }
                 return profile;
@@ -139,11 +140,11 @@ namespace NaughtyChoppersDA.Repositories
             }
         }
 
-        public Profile? GetProfileByUserId(Guid? userId)
+        public async Task<Profile?> GetProfileByUserId(Guid? userId)
         {
             try
             {
-                using (SqlConnection connection = new SqlConnection(myDbConnectionString))
+                await using (SqlConnection connection = new SqlConnection(myDbConnectionString))
                 {
                     connection.Open();
 
@@ -158,7 +159,7 @@ namespace NaughtyChoppersDA.Repositories
                             profile.ProfileId = reader.GetGuid(0);
                             profile.Name = reader.GetString(1);
                             profile.DateOfBirth = reader.GetDateTime(2);
-                            profile.Model = GetHelicopterModel(reader.GetInt32(3));
+                            profile.Model = await GetHelicopterModel(reader.GetInt32(3));
                             if (!reader.IsDBNull(4))
                             {
                                 long bytesRead;
@@ -182,11 +183,11 @@ namespace NaughtyChoppersDA.Repositories
                             }
                             profile.PostalCode = reader.GetString(5);
 
-                            profile.HobbyInterests = GetAllHobbyInterestsFromProfile(profile.ProfileId);
-                            profile.HelicopterModelInterests = GetHelicopterModelInterstsFromProfile(profile.ProfileId);
+                            profile.HobbyInterests = await GetAllHobbyInterestsFromProfile(profile.ProfileId);
+                            profile.HelicopterModelInterests = await GetHelicopterModelInterstsFromProfile(profile.ProfileId);
                             if (profile.PostalCode != null)
                             {
-                                profile.City = GetCityByPostalCode(profile.PostalCode);
+                                profile.City = await GetCityByPostalCode(profile.PostalCode);
                             }
                             return profile;
                         }
@@ -205,12 +206,12 @@ namespace NaughtyChoppersDA.Repositories
 
         }
 
-        public Guid? GetProfileId(Guid? userId)
+        public async Task<Guid?> GetProfileId(Guid? userId)
         {
             Guid? profileId = null;
             try
             {
-                using (SqlConnection connection = new SqlConnection(myDbConnectionString))
+                await using (SqlConnection connection = new SqlConnection(myDbConnectionString))
                 {
                     connection.Open();
 
@@ -237,17 +238,12 @@ namespace NaughtyChoppersDA.Repositories
             }
         }
 
-        public void UpdateProfile(Profile profile)
-        {
-            throw new NotImplementedException();
-        }
-
-        public string? GetCityByPostalCode(string postalCode)
+        public async Task<string?> GetCityByPostalCode(string postalCode)
         {
             string? city = null;
             try
             {
-                using (SqlConnection connection = new SqlConnection(myDbConnectionString))
+                await using (SqlConnection connection = new SqlConnection(myDbConnectionString))
                 {
                     connection.Open();
 
@@ -276,12 +272,12 @@ namespace NaughtyChoppersDA.Repositories
         }
 
         #region HobbyInterests
-        public List<HobbyInterest> GetAllHobbyInterestsFromProfile(Guid? profileId)
+        public async Task<List<HobbyInterest>> GetAllHobbyInterestsFromProfile(Guid? profileId)
         {
             List<HobbyInterest> interestsList = new();
             try
             {
-                using (SqlConnection connection = new SqlConnection(myDbConnectionString))
+                await using (SqlConnection connection = new SqlConnection(myDbConnectionString))
                 {
                     connection.Open();
 
@@ -308,12 +304,12 @@ namespace NaughtyChoppersDA.Repositories
             return interestsList;
         }
 
-        public List<HobbyInterest> GetAllHobbyInterests()
+        public async Task<List<HobbyInterest>> GetAllHobbyInterests()
         {
             List<HobbyInterest> interestsList = new();
             try
             {
-                using (SqlConnection connection = new SqlConnection(myDbConnectionString))
+                await using (SqlConnection connection = new SqlConnection(myDbConnectionString))
                 {
                     connection.Open();
 
@@ -339,11 +335,11 @@ namespace NaughtyChoppersDA.Repositories
             return interestsList; ;
         }
 
-        private void AddHobbyInterestsToProfile(Guid? profileId, List<HobbyInterest> hobbyInterests)
+        private async Task AddHobbyInterestsToProfile(Guid? profileId, List<HobbyInterest> hobbyInterests)
         {
             try
             {
-                using (SqlConnection connection = new SqlConnection(myDbConnectionString))
+                await using (SqlConnection connection = new SqlConnection(myDbConnectionString))
                 {
                     connection.Open();
                     foreach (HobbyInterest hobbyInterest in hobbyInterests)
@@ -389,12 +385,12 @@ namespace NaughtyChoppersDA.Repositories
 
         #endregion
         #region HelicopterModel
-        public List<HelicopterModel> GetHelicopterModelInterstsFromProfile(Guid? profileId)
+        public async Task<List<HelicopterModel>> GetHelicopterModelInterstsFromProfile(Guid? profileId)
         {
             List<HelicopterModel> helicopterModelInterests = new();
             try
             {
-                using (SqlConnection connection = new SqlConnection(myDbConnectionString))
+                await using (SqlConnection connection = new SqlConnection(myDbConnectionString))
                 {
                     connection.Open();
 
@@ -421,12 +417,12 @@ namespace NaughtyChoppersDA.Repositories
             return helicopterModelInterests;
         }
 
-        public HelicopterModel GetHelicopterModel(int? helicopterModelId)
+        public async Task<HelicopterModel> GetHelicopterModel(int? helicopterModelId)
         {
             HelicopterModel helicopterModel = new HelicopterModel();
             try
             {
-                using (SqlConnection connection = new SqlConnection(myDbConnectionString))
+                await using (SqlConnection connection = new SqlConnection(myDbConnectionString))
                 {
                     connection.Open();
 
@@ -455,12 +451,12 @@ namespace NaughtyChoppersDA.Repositories
 
         }// TODO: might be redundant
 
-        public List<HelicopterModel> GetAllHelicoptersModels()
+        public async Task<List<HelicopterModel>> GetAllHelicoptersModels()
         {
             List<HelicopterModel> helicopterModelList = new();
             try
             {
-                using (SqlConnection connection = new SqlConnection(myDbConnectionString))
+                await using (SqlConnection connection = new SqlConnection(myDbConnectionString))
                 {
                     connection.Open();
 
@@ -486,11 +482,11 @@ namespace NaughtyChoppersDA.Repositories
             return helicopterModelList;
         }
 
-        private void AddHelicopterModelInterestsToProfile(Guid? profileId, List<HelicopterModel> helicopterModels)
+        public async Task AddHelicopterModelInterestsToProfile(Guid? profileId, List<HelicopterModel> helicopterModels)
         {
             try
             {
-                using (SqlConnection connection = new SqlConnection(myDbConnectionString))
+                await using (SqlConnection connection = new SqlConnection(myDbConnectionString))
                 {
                     connection.Open();
                     foreach (HelicopterModel helicopterModel in helicopterModels)
@@ -514,7 +510,7 @@ namespace NaughtyChoppersDA.Repositories
                     }
                 }
             }
-            catch (SqlException)
+            catch (SqlException se)
             {
                 throw new UserException("Database error");
             }
@@ -524,16 +520,21 @@ namespace NaughtyChoppersDA.Repositories
             }
         }
 
-        private void RemoveAllHelicopterModelInterestsFromProfile(Guid? profileId)
-        {
-            throw new NotImplementedException();
-        }
+        //private void RemoveAllHelicopterModelInterestsFromProfile(Guid? profileId)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        private void RemoveHelicopterModelInterestFromProfile(Guid? profileId, HelicopterModel helicopterModel)
-        {
-            throw new NotImplementedException();
-        }
+        //private void RemoveHelicopterModelInterestFromProfile(Guid? profileId, HelicopterModel helicopterModel)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
         #endregion
+
+        //public void UpdateProfile(Profile profile)
+        //{
+        //    throw new NotImplementedException();
+        //}
     }
 }

@@ -5,9 +5,9 @@ namespace NaughtyChoppersDA.Repositories
 {
     public interface IMatchingRepository
     {
-        public List<Profile> GetFilteredListOfProfiles(Guid profileId);
+        public Task<List<Profile>> GetFilteredListOfProfiles(Guid profileId);
 
-        public void LikeProfileAsync(Guid profileId, Guid likedProfileId, bool? likedBack);
+        public Task LikeProfileAsync(Guid profileId, Guid likedProfileId, bool? likedBack);
 
         public Task<List<Profile>> GetAllMatches(Guid? profileId);
 

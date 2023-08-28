@@ -7,7 +7,7 @@ namespace NaughtyChoppersDA.Repositories
     {
         public Task<List<ChatMessage>> GetAllChatMessages(Guid senderId, Guid ReceiverId);
 
-        public void SendMessage(Guid senderId, Guid ReceiverId, string message);
+        public Task SendMessage(Guid senderId, Guid ReceiverId, string message);
 
         public Task<List<ChatMessage>> UpdateChatAsync(Guid senderId, Guid ReceiverId, List<ChatMessage> currentChat);
 
