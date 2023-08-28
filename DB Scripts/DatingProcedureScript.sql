@@ -378,3 +378,14 @@ OFFSET @AmountOfSkips ROWS;
 END
 GO
 
+GO 
+CREATE PROCEDURE DeleteAllChatMessages(
+@ProfileId UNIQUEIDENTIFIER
+)
+AS
+BEGIN
+DELETE FROM ChatTable
+WHERE SenderId = @ProfileId OR ReceiverId = @ProfileId
+END
+GO
+

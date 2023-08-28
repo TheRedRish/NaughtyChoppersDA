@@ -157,5 +157,44 @@ namespace NaughtyChoppersDA.Repositories
                 throw new Exception($"Unknown Error: {e.Message}");
             }
         }
+
+        public async Task<List<Profile>> GetAllMatches(Guid? profileId)
+        {
+			try
+			{
+				List<Profile> profiles = new();
+				using (SqlConnection connection = new SqlConnection(myDbConnectionString))
+				{
+					connection.Open();
+
+					string procedureName = "GetLikedMatches";
+
+					using (SqlCommand command = new SqlCommand(procedureName, connection))
+					{
+						command.CommandType = CommandType.StoredProcedure;
+
+						// Add parameters to the stored procedure
+						command.Parameters.Add("@YourId", SqlDbType.UniqueIdentifier).Value = profileId;
+
+						await using (SqlDataReader reader = command.ExecuteReader())
+						{
+							while (reader.Read())
+							{
+								profiles.Add(GetProfileByProfileId(reader.GetGuid(0)));
+							}
+						}
+					}
+				}
+				return profiles;
+			}
+			catch (SqlException se)
+			{
+				throw new Exception($"Database Error: {se.Message}");
+			}
+			catch (Exception e)
+			{
+				throw new Exception($"Unknown Error: {e.Message}");
+			}
+		}
     }
 }

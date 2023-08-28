@@ -1,49 +1,72 @@
 ﻿@page "/chat/{otherProfileIdString}"
+@page "/chat"
 @using NaughtyChoppersDA.Globals.Utils;
 @using NaughtyChoppersDA.Repositories;
 @inject IProfileService ProfileService
 
-@if (ProfileService.Profile != null && otherProfile != null)
+@if (ProfileService.Profile != null)
 {
-    <MudContainer Class="chat-container" MaxWidth="MaxWidth.ExtraSmall">
-        <MudPaper Elevation="3" Class="p-2">
-            <MudContainer Class="text-center">
-                <MudText Typo="Typo.h4" Class="mb-2">
-                    @otherProfile.Name
-                </MudText>
-            </MudContainer>
-            <div class="chat-messages">
-                @foreach (var message in messages)
+<MudLayout>
+    <MudDrawer Open = "true" ClipMode="DrawerClipMode.Always" Elevation="1" Variant="@DrawerVariant.Persistent">
+        <MudDrawerHeader>
+            <MudText Typo="Typo.h6">My App</MudText>
+        </MudDrawerHeader>
+        <MudNavMenu>
+                @foreach(var match in matches)
                 {
-                    if (message.Sender.ProfileId == ProfileService.Profile.ProfileId)
-                    {
-                        <div class="d-flex flex-wrap justify-end my-3">
-                            <MudText Class="chat-message mud-theme-primary px-3 py-2 mx-2 rounded-s-xl rounded-te-xl " title="@ProfileService.Profile.Name">@message.Message </MudText>
-                            <MudImage Class="m-1 align-self-end rounded-circle" Src="@(profileImage)" Width="40" Height="40" />
-                            <MudText Class="timestamp-text timestamp-text--left">
-                                @GetTimeStamp(@message.Timestamp)
+                    <div style="display: flex; text-align: center;">
+                        <MudImage Class="m-1 align-self-end rounded-circle" Src="@(profileImage)" Width="40" Height="40" />
+                        <MudNavLink Href="@($"/chat/{match.ProfileId}")" Match="NavLinkMatch.All">@match.Name</MudNavLink>
+                    </div>
+                }    
+            </MudNavMenu>
+    </MudDrawer>
+    <MudMainContent Class="pt-16 px-16">
+            @if(otherProfileIdString != null)
+            {
+                <MudContainer Class="chat-container" MaxWidth="MaxWidth.ExtraSmall">
+                    <MudPaper Elevation="3" Class="p-2">
+                        <MudContainer Class="text-center">
+                            <MudText Typo="Typo.h4" Class="mb-2">
+                                @otherProfile.Name
                             </MudText>
+                        </MudContainer>
+                        <div class="chat-messages">
+                            @foreach (var message in messages)
+                            {
+                                if (message.Sender.ProfileId == ProfileService.Profile.ProfileId)
+                                {
+                                    <div class="d-flex flex-wrap justify-end my-3">
+                                        <MudText Class="chat-message mud-theme-primary px-3 py-2 mx-2 rounded-s-xl rounded-te-xl " title="@ProfileService.Profile.Name">@message.Message </MudText>
+                                        <MudImage Class="m-1 align-self-end rounded-circle" Src="@(profileImage)" Width="40" Height="40" />
+                                        <MudText Class="timestamp-text timestamp-text--left">
+                                            @GetTimeStamp(@message.Timestamp)
+                                        </MudText>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="d-flex flex-wrap my-3">
+                                        <MudImage Class="m-1 align-self-end rounded-circle" Src="@(otherProfileImage)" Width="40" Height="40" />
+                                        <MudText Class="chat-message mud-theme-secondary flex-wrap px-3 py-2 mx-2 rounded-e-xl rounded-ts-xl" title="@otherProfile.Name">@message.Message </MudText>
+                                        <MudText Class="timestamp-text px-2 timestamp-text--right">
+                                            @GetTimeStamp(@message.Timestamp)
+                                        </MudText>
+                                    </div>
+                                }
+                                counter++;
+                            }
                         </div>
-                    }
-                    else
-                    {
-                        <div class="d-flex flex-wrap my-3">
-                            <MudImage Class="m-1 align-self-end rounded-circle" Src="@(otherProfileImage)" Width="40" Height="40" />
-                            <MudText Class="chat-message mud-theme-secondary flex-wrap px-3 py-2 mx-2 rounded-e-xl rounded-ts-xl" title="@otherProfile.Name">@message.Message </MudText>
-                            <MudText Class="timestamp-text px-2 timestamp-text--right">
-                                @GetTimeStamp(@message.Timestamp)
-                            </MudText>
+                        <div class="d-flex">
+                            <MudTextField Class="flex-grow-1 mt-0" @bind-Value="messageText" Variant="Variant.Outlined" FullWidth="true" Placeholder="Type your message..." />
+                            <MudButton Class="py-0" Color="Color.Primary" Variant="Variant.Filled" @onclick="SendMessage">Send</MudButton>
                         </div>
-                    }
-                    counter++;
-                }
-            </div>
-            <div class="d-flex">
-                <MudTextField Class="flex-grow-1 mt-0" @bind-Value="messageText" Variant="Variant.Outlined" FullWidth="true" Placeholder="Type your message..." />
-                <MudButton Class="py-0" Color="Color.Primary" Variant="Variant.Filled" @onclick="SendMessage">Send</MudButton>
-            </div>
-        </MudPaper>
-    </MudContainer>
+                    </MudPaper>
+                </MudContainer>
+            }
+    </MudMainContent>
+</MudLayout>
+    
 }
 <style>
     .chat-message {
@@ -67,9 +90,11 @@
     }
 </style>
 @code {
-    [Parameter]
-    public string otherProfileIdString { get; set; }
+    private List<Profile> matches = new();
+    IMatchingRepository matchingRepository = new MatchingRepository();
 
+    [Parameter]
+    public string? otherProfileIdString { get; set; } = null;
     private Guid otherProfileId;
 
     private IChatRepository chatRepositories = new ChatRepository();
@@ -82,12 +107,31 @@
     private int counter = 0;
     private const int UpdateIntervalSeconds = 1;
 
-    protected override async void OnInitialized()
+    protected async override Task OnParametersSetAsync()
     {
-        if (otherProfileIdString != null)
+        if(otherProfileIdString != null)
         {
-            otherProfileId = new Guid(otherProfileIdString);
+            await UpdateOtherProfile();
+
+            messages = await chatRepositories.GetAllChatMessages((Guid)ProfileService.Profile!.ProfileId, (Guid)otherProfile.ProfileId);
+
+            while (true)
+            {
+                messages = await chatRepositories.UpdateChatAsync((Guid)ProfileService.Profile!.ProfileId, (Guid)otherProfile.ProfileId, messages);
+                StateHasChanged();
+                await Task.Delay(TimeSpan.FromSeconds(UpdateIntervalSeconds));
+            }
         }
+    }
+
+    protected async override Task OnInitializedAsync()
+    {
+        matches = await matchingRepository.GetAllMatches(ProfileService.Profile.ProfileId);
+
+        //if (otherProfileIdString != null)
+        //{
+        //    otherProfileId = new Guid(otherProfileIdString);
+        //}
         if (ProfileService.Profile == null)
         {
             NavigationManager.NavigateTo("/");
@@ -97,19 +141,10 @@
         {
             profileImage += ConvertProfileImageToBase64(ProfileService.Profile.ProfileImage);
         }
-        otherProfile = ProfileService.GetProfileByProfileId(otherProfileId);
-        if (otherProfile.ProfileImage != null)
-        {
-            otherProfileImage += ConvertProfileImageToBase64(otherProfile.ProfileImage);
-        }
 
-        messages = await chatRepositories.GetAllChatMessages((Guid)ProfileService.Profile!.ProfileId, (Guid)otherProfile.ProfileId);
-
-        while (true)
+        if(otherProfileIdString == null)
         {
-            messages = await chatRepositories.UpdateChatAsync((Guid)ProfileService.Profile!.ProfileId, (Guid)otherProfile.ProfileId, messages);
-            StateHasChanged();
-            await Task.Delay(TimeSpan.FromSeconds(UpdateIntervalSeconds));
+            return;
         }
     }
 
@@ -147,6 +182,14 @@
 
             chatRepositories.SendMessage((Guid)ProfileService.Profile.ProfileId, (Guid)otherProfile.ProfileId, messageText);
             messageText = string.Empty;
+        }
+    }
+    private async Task UpdateOtherProfile()
+    {
+        otherProfile = ProfileService.GetProfileByProfileId(new Guid(otherProfileIdString));
+        if (otherProfile.ProfileImage != null)
+        {
+            otherProfileImage += ConvertProfileImageToBase64(otherProfile.ProfileImage);
         }
     }
 }
