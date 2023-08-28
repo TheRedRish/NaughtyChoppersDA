@@ -73,7 +73,7 @@
     private bool PasswordValid;
     private bool ConfirmPasswordValid;
 
-    private void CheckUsernameExistence()
+    private async void CheckUsernameExistence()
     {
         UsernameValidationMessages.Clear();
 
@@ -82,7 +82,7 @@
             return;
         }
 
-        UsernameExists = UserService.DoesUserExist(Username);
+        UsernameExists = await UserService.DoesUserExist(Username);
 
         if (UsernameExists)
         {

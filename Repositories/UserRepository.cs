@@ -10,7 +10,7 @@ namespace NaughtyChoppersDA.Repositories
     public class UserRepository : IUserRepository
     {
         private string myDbConnectionString = AccessToDb.ConnectionString;
-        public async void CreateUser(string userName, string password)
+        public async Task CreateUser(string userName, string password)
         {
             try
             {
@@ -43,7 +43,7 @@ namespace NaughtyChoppersDA.Repositories
             }
         }
 
-        public async void DeleteUser(User user)
+        public async Task DeleteUser(User user)
         {
             try
             {
@@ -68,16 +68,6 @@ namespace NaughtyChoppersDA.Repositories
                 throw new UserException("Unknown error");
             }
         }
-
-        //public async void UpdateUser(User user)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public async Task<User> GetUserById(Guid? id)
-        //{
-        //    throw new NotImplementedException();
-        //}
 
         public async Task<User?> GetUserByUsernameAndPassword(string userName, string password)
         {
@@ -143,5 +133,15 @@ namespace NaughtyChoppersDA.Repositories
                 throw new UserException("Unknown error");
             }
         }
+
+        //public async void UpdateUser(User user)
+        //{
+        //    throw new NotImplementedException();
+        //}
+
+        //public async Task<User> GetUserById(Guid? id)
+        //{
+        //    throw new NotImplementedException();
+        //}
     }
 }

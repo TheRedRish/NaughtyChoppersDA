@@ -99,9 +99,9 @@
     private bool LoginSuccessful;
     private string ErrorMessage;
 
-    private void LoginUser()
+    private async void LoginUser()
     {
-        string response = UserService.Login(Username, StringUtils.HashStringToSHA512(Password));
+        string response = await UserService.Login(Username, StringUtils.HashStringToSHA512(Password));
         if (response != "Success")
         {
             LoginSuccessful = false;
