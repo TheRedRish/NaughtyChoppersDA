@@ -25,13 +25,14 @@
                     @bind-Value="profile.Name" />
 
                     <MudDatePicker Label="Date of Birth"
-                                   Variant="Variant.Outlined"
-                                   IsDateDisabledFunc="@((DateTime dt)=>(dt > DateTime.Now))"
-                                   DisableToolbar="true"
-                                   OpenTo="OpenTo.Year"
-                                   Required="true"
-                                   RequiredError="Date of Birth is required"
-                    @bind-Date="profile.DateOfBirth" />
+                               Variant="Variant.Outlined"
+                               IsDateDisabledFunc="@((DateTime dt)=>(dt > DateTime.Now))"
+                               DisableToolbar="true"
+                               OpenTo="OpenTo.Year"
+                               Required="true"
+                               RequiredError="Date of Birth is required"
+                               @bind-Date="profile.DateOfBirth" />
+
 
                     <MudSelect Label="Helicopter Model"
                                Variant="Variant.Outlined"

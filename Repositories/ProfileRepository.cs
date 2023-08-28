@@ -51,7 +51,7 @@ namespace NaughtyChoppersDA.Repositories
             }
         }
 
-        public async Task DeleteProfile(Guid? profileId)
+        public async Task DeleteProfile(Guid profileId)
         {
             try
             {
@@ -141,7 +141,7 @@ namespace NaughtyChoppersDA.Repositories
             }
         }
 
-        public async Task<Profile?> GetProfileByUserId(Guid? userId)
+        public async Task<Profile?> GetProfileByUserId(Guid userId)
         {
             try
             {
@@ -207,9 +207,8 @@ namespace NaughtyChoppersDA.Repositories
 
         }
 
-        public async Task<Guid?> GetProfileId(Guid? userId)
+        public async Task<Guid> GetProfileId(Guid userId)
         {
-            Guid? profileId = null;
             try
             {
                 await using (SqlConnection connection = new SqlConnection(myDbConnectionString))
@@ -223,11 +222,11 @@ namespace NaughtyChoppersDA.Repositories
                     {
                         if (await reader.ReadAsync())
                         {
-                            profileId = reader.GetGuid(0);
+                            return reader.GetGuid(0);
                         }
                     }
                 }
-                return profileId;
+                return Guid.Empty;
             }
             catch (SqlException)
             {
@@ -273,7 +272,7 @@ namespace NaughtyChoppersDA.Repositories
         }
 
         #region HobbyInterests
-        public async Task<List<HobbyInterest>> GetAllHobbyInterestsFromProfile(Guid? profileId)
+        public async Task<List<HobbyInterest>> GetAllHobbyInterestsFromProfile(Guid profileId)
         {
             List<HobbyInterest> interestsList = new();
             try
@@ -336,7 +335,7 @@ namespace NaughtyChoppersDA.Repositories
             return interestsList; ;
         }
 
-        private async Task AddHobbyInterestsToProfile(Guid? profileId, List<HobbyInterest> hobbyInterests)
+        private async Task AddHobbyInterestsToProfile(Guid profileId, List<HobbyInterest> hobbyInterests)
         {
             try
             {
@@ -386,7 +385,7 @@ namespace NaughtyChoppersDA.Repositories
 
         #endregion
         #region HelicopterModel
-        public async Task<List<HelicopterModel>> GetHelicopterModelInterstsFromProfile(Guid? profileId)
+        public async Task<List<HelicopterModel>> GetHelicopterModelInterstsFromProfile(Guid profileId)
         {
             List<HelicopterModel> helicopterModelInterests = new();
             try
@@ -483,7 +482,7 @@ namespace NaughtyChoppersDA.Repositories
             return helicopterModelList;
         }
 
-        public async Task AddHelicopterModelInterestsToProfile(Guid? profileId, List<HelicopterModel> helicopterModels)
+        public async Task AddHelicopterModelInterestsToProfile(Guid profileId, List<HelicopterModel> helicopterModels)
         {
             try
             {

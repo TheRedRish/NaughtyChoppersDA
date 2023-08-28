@@ -158,7 +158,7 @@ namespace NaughtyChoppersDA.Repositories
             }
         }
 
-        public async Task<List<Profile>> GetAllMatches(Guid? profileId)
+        public async Task<List<Profile>> GetAllMatches(Guid profileId)
         {
 			try
 			{

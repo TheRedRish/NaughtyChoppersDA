@@ -81,7 +81,7 @@ else
     protected async override Task OnInitializedAsync()
     {
         var profileId = profileService.Profile!.ProfileId;
-        profiles = await matchingRepository.GetFilteredListOfProfiles((Guid)profileService.Profile!.ProfileId!); // Initialize with your list of profiles
+        profiles = await matchingRepository.GetFilteredListOfProfiles(profileService.Profile!.ProfileId!); // Initialize with your list of profiles
     }
 
     int currentIndex = 0;
@@ -91,13 +91,13 @@ else
 
     async void LikeProfile()
     {
-        await matchingRepository.LikeProfileAsync((Guid)profileService.Profile!.ProfileId!, (Guid)currentProfile.ProfileId!, true);
+        await matchingRepository.LikeProfileAsync(profileService.Profile!.ProfileId, currentProfile!.ProfileId!, true);
         profiles.RemoveAt(currentIndex);
     }
 
     async void DislikeProfile()
     {
-        await matchingRepository.LikeProfileAsync((Guid)profileService.Profile!.ProfileId!, (Guid)currentProfile.ProfileId!, false);
+        await matchingRepository.LikeProfileAsync(profileService.Profile!.ProfileId, currentProfile!.ProfileId!, false);
         profiles.RemoveAt(currentIndex);
     }
 
