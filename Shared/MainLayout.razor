@@ -14,16 +14,13 @@
         {
             <MudLink Href="/Chat" Class="text-white mx-3">Chat</MudLink>
             <MudLink Href="/DatingPage" Class="text-white mx-3">Dating Page</MudLink>
-            <MudSpacer />            
+            <MudSpacer />
             <MudMenu ActivationEvent="@MouseEvent.MouseOver" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter">
                 <ActivatorContent>
-                        <MudImage Class="rounded-circle" Src="@GetImageToDisplay()" Width="30" Height="30" />
+                    <MudImage Class="rounded-circle" Src="@GetImageToDisplay()" Width="30" Height="30" />
                 </ActivatorContent>
-                <ChildContent> @* TODO: Fill this out with something edit profile or some shit *@
-                    <MudMenuItem>Profile</MudMenuItem>
-                    <MudMenuItem>Theme</MudMenuItem>
-                    <MudMenuItem>Usage</MudMenuItem>
-                    <MudMenuItem>Sign Out</MudMenuItem>
+                <ChildContent>
+                    <MudMenuItem OnClick="DeleteProfile">Delete Profile</MudMenuItem>
                 </ChildContent>
             </MudMenu>
         }
@@ -41,17 +38,25 @@
         @if (UserService.User == null)
         {
             <MudTooltip Class="mx-3" Text="Create User">
-                <MudIconButton  Href="/user-register" Icon="@Icons.Material.Filled.AddCircle" Color="Color.Default" Size="Size.Large" />
+                <MudIconButton Href="/user-register" Icon="@Icons.Material.Filled.AddCircle" Color="Color.Default" Size="Size.Large" />
             </MudTooltip>
             <MudTooltip Class="mx-3" Text="Login">
                 <MudIconButton Href="/user-login" Icon="@Icons.Material.Filled.Login" Color="Color.Info" Size="Size.Large" />
-            </MudTooltip> 
+            </MudTooltip>
         }
         else
         {
             <MudTooltip Text="Logout">
                 <MudIconButton OnClick="LogOut" Icon="@Icons.Material.Filled.Logout" Color="Color.Error" Size="Size.Large" />
             </MudTooltip>
+            <MudMenu ActivationEvent="@MouseEvent.MouseOver" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter">
+                <ActivatorContent>
+                    <MudIconButton Icon="@Icons.Material.Filled.ManageAccounts" Color="Color.Default" Size="Size.Large" />
+                </ActivatorContent>
+                <ChildContent>
+                    <MudMenuItem OnClick="DeleteUser">Delete User</MudMenuItem>
+                </ChildContent>
+            </MudMenu>
         }
     </MudAppBar>
     <MudMainContent>
@@ -85,6 +90,27 @@
     {
         UserService.LogOut();
         ProfileService.Profile = null;
+        NavigationManager.NavigateTo("/");
+    }
+
+    private void DeleteProfile()
+    {
+        if (ProfileService.Profile != null && ProfileService.Profile.ProfileId != null)
+        {
+            ProfileService.DeleteProfile((Guid)ProfileService.Profile.ProfileId);
+        }
+        ProfileService.Profile = null;
+        NavigationManager.NavigateTo("/");
+    }
+    private void DeleteUser()
+    {
+        if (UserService.User != null)
+        {
+            UserService.DeleteUser(UserService.User);
+        }
+        ProfileService.Profile = null;
+        UserService.User = null;
+        NavigationManager.NavigateTo("/");
     }
 
     private string GetImageToDisplay()
