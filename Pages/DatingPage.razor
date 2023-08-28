@@ -93,12 +93,14 @@ else
     {
         await matchingRepository.LikeProfileAsync(profileService.Profile!.ProfileId, currentProfile!.ProfileId!, true);
         profiles.RemoveAt(currentIndex);
+        if (profiles.Count == 0) StateHasChanged();
     }
 
     async void DislikeProfile()
     {
         await matchingRepository.LikeProfileAsync(profileService.Profile!.ProfileId, currentProfile!.ProfileId!, false);
         profiles.RemoveAt(currentIndex);
+        if (profiles.Count == 0) StateHasChanged();
     }
 
 }

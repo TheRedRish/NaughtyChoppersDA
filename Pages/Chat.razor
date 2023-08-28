@@ -1,4 +1,4 @@
-﻿@page "/chat/{otherProfileIdString}"
+﻿@page "/chat/{otherProfileIdParameter}"
 @page "/chat"
 @using NaughtyChoppersDA.Globals.Utils;
 @using NaughtyChoppersDA.Repositories;
@@ -9,7 +9,7 @@
 <MudLayout>
     <MudDrawer Open = "true" ClipMode="DrawerClipMode.Always" Elevation="1" Variant="@DrawerVariant.Persistent">
         <MudDrawerHeader>
-            <MudText Typo="Typo.h6">My App</MudText>
+            <MudText Typo="Typo.h6">Matches</MudText>
         </MudDrawerHeader>
         <MudNavMenu>
                 @foreach(var match in matches)
@@ -31,7 +31,7 @@
                                 @otherProfile.Name
                             </MudText>
                         </MudContainer>
-                        <div class="chat-messages">
+                        <div class="chat-messages" style="max-height: 400px; min-height: 100px; overflow-y: auto;">
                             @foreach (var message in messages)
                             {
                                 if (message.Sender.ProfileId == ProfileService.Profile.ProfileId)
@@ -122,6 +122,10 @@
             }
             while (true)
             {
+                if (ProfileService.Profile == null) 
+                {
+                    break;
+                }
                 messages = await chatRepositories.UpdateChatAsync(ProfileService.Profile!.ProfileId, otherProfile.ProfileId, messages);
                 StateHasChanged();
                 await Task.Delay(TimeSpan.FromSeconds(UpdateIntervalSeconds));
