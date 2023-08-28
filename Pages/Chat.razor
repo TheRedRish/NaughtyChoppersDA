@@ -116,6 +116,10 @@
 
             messages = await chatRepositories.GetAllChatMessages((Guid)ProfileService.Profile!.ProfileId, (Guid)otherProfile.ProfileId);
 
+            if (otherProfile.ProfileImage != null)
+            {
+                otherProfileImage = ImageUtils.ConvertProfileImageToSrcImage(otherProfile.ProfileImage);
+            }
             while (true)
             {
                 messages = await chatRepositories.UpdateChatAsync((Guid)ProfileService.Profile!.ProfileId, (Guid)otherProfile.ProfileId, messages);
@@ -124,10 +128,6 @@
             }
         }
 
-        if (otherProfile.ProfileImage != null)
-        {
-            otherProfileImage = ImageUtils.ConvertProfileImageToSrcImage(otherProfile.ProfileImage);
-        }
     }
 
     protected async override Task OnInitializedAsync()
@@ -147,7 +147,6 @@
         {
             return;
         }
-        otherProfile = ProfileService.GetProfileByProfileId(otherProfileId);        
     }
 
     private string GetTimeStamp(DateTime time)

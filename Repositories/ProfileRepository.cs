@@ -192,16 +192,6 @@ namespace NaughtyChoppersDA.Repositories
                         }
                     }
                 }
-                if(profile.ProfileId != null)
-                {
-                    profile.HobbyInterests = GetAllHobbyInterestsFromProfile(profile.ProfileId);
-                    profile.HelicopterModelInterests = GetHelicopterModelInterstsFromProfile(profile.ProfileId);
-                    if (profile.PostalCode != null)
-                    {
-                        profile.City = GetCityByPostalCode(profile.PostalCode);
-                    }
-                    return profile;
-                }
                 return null;
             }
             catch (SqlException)
