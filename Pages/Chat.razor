@@ -31,7 +31,7 @@
                                 @otherProfile.Name
                             </MudText>
                         </MudContainer>
-                        <div class="chat-messages" style="max-height: 400px; min-height: 100px; overflow-y: auto;">
+                        <div class="chat-messages" style="max-height: 400px; min-height: 400px; overflow-y: auto;">
                             @foreach (var message in messages)
                             {
                                 if (message.Sender.ProfileId == ProfileService.Profile.ProfileId)
@@ -116,10 +116,6 @@
 
             messages = await chatRepositories.GetAllChatMessages(ProfileService.Profile!.ProfileId, otherProfile.ProfileId);
 
-            if (otherProfile.ProfileImage != null)
-            {
-                otherProfileImage = ImageUtils.ConvertProfileImageToSrcImage(otherProfile.ProfileImage);
-            }
             while (true)
             {
                 if (ProfileService.Profile == null) 
