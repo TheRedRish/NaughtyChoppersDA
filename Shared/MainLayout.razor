@@ -50,7 +50,7 @@
         else
         {
             <MudTooltip Text="Logout">
-                <MudIconButton Icon="@Icons.Material.Filled.Logout" Color="Color.Error" Size="Size.Large" />
+                <MudIconButton OnClick="LogOut" Icon="@Icons.Material.Filled.Logout" Color="Color.Error" Size="Size.Large" />
             </MudTooltip>
         }
     </MudAppBar>
@@ -79,6 +79,12 @@
     public void Dispose()
     {
         ProfileService.ProfileUpdated -= HandleProfileUpdated;
+    }
+
+    private void LogOut()
+    {
+        UserService.LogOut();
+        ProfileService.Profile = null;
     }
 
     private string GetImageToDisplay()
