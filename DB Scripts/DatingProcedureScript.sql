@@ -1,4 +1,8 @@
 GO
+USE [NaughtyChoppersDB]
+GO
+
+GO
 CREATE PROCEDURE AddUser
 @Username NVARCHAR(MAX),
 @Password NVARCHAR(MAX)
@@ -368,7 +372,7 @@ BEGIN
 SELECT SenderId, [ChatMessage], [Timestamp]
 FROM [ChatTable]
 WHERE (SenderId = @Sender AND ReceiverId = @Receiver)
-   AND (SenderId = @Receiver AND ReceiverId = @Sender)
+   OR (SenderId = @Receiver AND ReceiverId = @Sender)
 ORDER BY [Timestamp]
 OFFSET @AmountOfSkips ROWS;
 END
