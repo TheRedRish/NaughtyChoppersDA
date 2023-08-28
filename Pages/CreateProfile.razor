@@ -67,11 +67,16 @@
                             <SelectedTemplate>
                                 @if (selectedFile != null)
                                 {
+                                    if (selectedFile.Size > 500 * 1024)
+                                    {
+                                        <MudText>Image was too big to handle!. Max file size is 500KB</MudText>
+                                        return;
+                                    }
                                     <MudText>@selectedFile.Name</MudText>
                                 }
                                 else
                                 {
-                                    <MudText>No File Selected</MudText>
+                                    <MudText>No Image Was Selected. Select One</MudText>
                                 }
                             </SelectedTemplate>
                         </MudFileUpload>
@@ -137,6 +142,7 @@
     private EditContext editContext;
     private ValidationMessageStore validationMessageStore;
     MudForm? form;
+    private string selectedImage;
     private bool Success;
     private bool Loading = false;
 
@@ -145,6 +151,7 @@
         if (UserService.User == null)
         {
             NavigationManager.NavigateTo("/user-login");
+            return;
         }
 
         // Setting default model
@@ -168,7 +175,7 @@
     private async Task HandleFileSelection()
     {
         // Check if a file was selected
-        if (selectedFile != null)
+        if (selectedFile != null && selectedFile.Size < 500 * 1024)
         {
             // Convert the selected file to a byte array
             using (var memoryStream = new MemoryStream())

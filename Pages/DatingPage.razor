@@ -87,8 +87,13 @@ else
 
     protected async override Task OnInitializedAsync()
     {
+        if (profileService.Profile == null)
+        {
+            NavigationManager.NavigateTo("/user-login");
+            return;
+        }
+
         Loading = true;
-        var profileId = profileService.Profile!.ProfileId;
         profiles = await matchingRepository.GetFilteredListOfProfiles(profileService.Profile!.ProfileId!); // Initialize with your list of profiles
         Loading = false;
     }

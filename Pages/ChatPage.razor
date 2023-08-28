@@ -147,7 +147,7 @@
     {
         if (ProfileService.Profile == null)
         {
-            NavigationManager.NavigateTo("/");
+            NavigationManager.NavigateTo("/user-login");
             return;
         }
         if (ProfileService.Profile.ProfileImage != null)
@@ -168,14 +168,12 @@
         DateTime currentDateTime = DateTime.UtcNow;
         TimeSpan timeDifference = currentDateTime - time;
 
-        if (timeDifference.Days == 0)
+        if (timeDifference.Days < 0)
         {
             return time.ToString("HH:mm");
         }
-        else
-        {
-            return time.ToString("MM/dd/yyyy");
-        }
+
+        return time.ToString("MM/dd/yyyy");
     }
       
     private async void SendMessage()
