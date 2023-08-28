@@ -1,4 +1,8 @@
 GO
+USE [NaughtyChoppersDB]
+GO
+
+GO
 CREATE PROCEDURE AddUser
 @Username NVARCHAR(MAX),
 @Password NVARCHAR(MAX)
@@ -328,26 +332,59 @@ END
 GO
 
 GO
-CREATE PROCEDURE SetLikeTableResult(
-    @SenderId UNIQUEIDENTIFIER,
-    @ReceiverId UNIQUEIDENTIFIER,
-    @Liked BIT
+CREATE PROCEDURE SendMessageToReceiver(
+@Sender UNIQUEIDENTIFIER,
+@Receiver UNIQUEIDENTIFIER,
+@ChatMessage NVARCHAR(MAX)
 )
 AS
 BEGIN
-    -- Check if the combination already exists in either direction
-    IF EXISTS (SELECT 1 FROM LikesTable WHERE SenderId = @ReceiverId AND Receiver = @SenderId)
-    BEGIN
-        -- Update the existing record
-        UPDATE LikesTable
-        SET LikedBack = @Liked
-        WHERE SenderId = @ReceiverId AND Receiver = @SenderId
-    END
-    ELSE
-    BEGIN
-        -- Insert a new record
-        INSERT INTO LikesTable (SenderId, Receiver, LikedBack) 
-        VALUES (@SenderId, @ReceiverId, CASE WHEN @Liked = 1 THEN NULL ELSE @Liked END)
-    END
+INSERT INTO ChatTable(SenderId, ReceiverId, ChatMessage)
+VALUES (@Sender, @Receiver, @ChatMessage)
+END
+GO
+
+GO
+CREATE PROCEDURE GetLikedMatches(
+    @YourId UNIQUEIDENTIFIER
+)
+AS
+BEGIN
+    SELECT
+        CASE
+            WHEN SenderId = @YourId THEN Receiver
+            WHEN Receiver = @YourId THEN SenderId
+        END AS OppositeUserId
+    FROM LikesTable
+    WHERE (SenderId = @YourId OR Receiver = @YourId)
+    AND LikedBack = 1;
+END
+GO
+
+GO
+CREATE PROCEDURE GetAllMessagesFromChat(
+@Sender UNIQUEIDENTIFIER,
+@Receiver UNIQUEIDENTIFIER,
+@AmountOfSkips INT = 0
+)
+AS
+BEGIN
+SELECT SenderId, [ChatMessage], [Timestamp]
+FROM [ChatTable]
+WHERE (SenderId = @Sender AND ReceiverId = @Receiver)
+   OR (SenderId = @Receiver AND ReceiverId = @Sender)
+ORDER BY [Timestamp]
+OFFSET @AmountOfSkips ROWS;
+END
+GO
+
+GO 
+CREATE PROCEDURE DeleteAllChatMessages(
+@ProfileId UNIQUEIDENTIFIER
+)
+AS
+BEGIN
+DELETE FROM ChatTable
+WHERE SenderId = @ProfileId OR ReceiverId = @ProfileId
 END
 GO

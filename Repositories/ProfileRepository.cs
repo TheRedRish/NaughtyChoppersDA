@@ -118,11 +118,14 @@ namespace NaughtyChoppersDA.Repositories
                         }
                     }
                 }
-                profile.HobbyInterests = GetAllHobbyInterestsFromProfile(profile.ProfileId);
-                profile.HelicopterModelInterests = GetHelicopterModelInterstsFromProfile(profile.ProfileId);
-                if (profile.PostalCode != null)
+                if(profile.ProfileId != null)
                 {
-                    profile.City = GetCityByPostalCode(profile.PostalCode);
+                    profile.HobbyInterests = GetAllHobbyInterestsFromProfile(profile.ProfileId);
+                    profile.HelicopterModelInterests = GetHelicopterModelInterstsFromProfile(profile.ProfileId);
+                    if (profile.PostalCode != null)
+                    {
+                        profile.City = GetCityByPostalCode(profile.PostalCode);
+                    }
                 }
                 return profile;
             }
@@ -188,6 +191,16 @@ namespace NaughtyChoppersDA.Repositories
                             return profile;
                         }
                     }
+                }
+                if(profile.ProfileId != null)
+                {
+                    profile.HobbyInterests = GetAllHobbyInterestsFromProfile(profile.ProfileId);
+                    profile.HelicopterModelInterests = GetHelicopterModelInterstsFromProfile(profile.ProfileId);
+                    if (profile.PostalCode != null)
+                    {
+                        profile.City = GetCityByPostalCode(profile.PostalCode);
+                    }
+                    return profile;
                 }
                 return null;
             }

@@ -58,7 +58,7 @@ namespace NaughtyChoppersDA.Services
             return _repository.GetProfileByProfileId(profileId);
         }
 
-        public Profile GetProfileByUserId(Guid userId)
+        public Profile? GetProfileByUserId(Guid userId)
         {
             return _repository.GetProfileByUserId(userId);
         }

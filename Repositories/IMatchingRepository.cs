@@ -8,5 +8,8 @@ namespace NaughtyChoppersDA.Repositories
         public List<Profile> GetFilteredListOfProfiles(Guid profileId);
 
         public void LikeProfileAsync(Guid profileId, Guid likedProfileId, bool? likedBack);
-    }
+
+        public Task<List<Profile>> GetAllMatches(Guid? profileId);
+
+	}
 }
