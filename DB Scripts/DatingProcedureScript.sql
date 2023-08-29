@@ -1,4 +1,8 @@
 GO
+USE NaughtyChoppersDB;
+GO
+
+GO
 CREATE PROCEDURE AddUser
 @Username NVARCHAR(MAX),
 @Password NVARCHAR(MAX)
