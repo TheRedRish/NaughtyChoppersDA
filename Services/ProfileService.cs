@@ -26,46 +26,46 @@ namespace NaughtyChoppersDA.Services
             }
         }
 
-        public string CreateProfile(Profile profile, User user)
+        public async Task<string> CreateProfile(Profile profile, User user)
         {
-            _repository.CreateProfile(profile, user);
+            await _repository.CreateProfile(profile, user);
             return "Succes";
         }
 
-        public string DeleteProfile(Guid profileId)
+        public async Task<string> DeleteProfile(Guid profileId)
         {
-            _repository.DeleteProfile(profileId);
+            await _repository.DeleteProfile(profileId);
             return "Succes";
         }
 
-        public List<HelicopterModel> GetAllHelicopterModels()
+        public async Task<List<HelicopterModel>> GetAllHelicopterModels()
         {
-            return _repository.GetAllHelicoptersModels();
+            return await _repository.GetAllHelicoptersModels();
         }
 
-        public List<HobbyInterest> GetAllHobbyInterests()
+        public async Task<List<HobbyInterest>> GetAllHobbyInterests()
         {
-            return _repository.GetAllHobbyInterests();            
+            return await _repository.GetAllHobbyInterests();            
         }
 
-        public string? GetCityByPostalCode(string postalCode)
+        public async Task<string?> GetCityByPostalCode(string postalCode)
         {
-            return _repository.GetCityByPostalCode(postalCode);
+            return await _repository.GetCityByPostalCode(postalCode);
         }
 
-        public Profile GetProfileByProfileId(Guid profileId)
+        public async Task<Profile> GetProfileByProfileId(Guid profileId)
         {
-            return _repository.GetProfileByProfileId(profileId);
+            return await _repository.GetProfileByProfileId(profileId);
         }
 
-        public Profile? GetProfileByUserId(Guid userId)
+        public async Task<Profile?> GetProfileByUserId(Guid userId)
         {
-            return _repository.GetProfileByUserId(userId);
+            return await _repository.GetProfileByUserId(userId);
         }
 
-        public string UpdateProfile(Profile profile)
-        {
-            throw new NotImplementedException();
-        }
+        //public async Task<string> UpdateProfile(Profile profile)
+        //{
+        //    throw new NotImplementedException();
+        //}
     }
 }

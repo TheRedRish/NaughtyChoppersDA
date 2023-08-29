@@ -15,7 +15,7 @@ namespace NaughtyChoppersDA.Repositories
             try
             {
                 List<ChatMessage> chatMessages = new();
-                using (SqlConnection connection = new SqlConnection(myDbConnectionString))
+                await using (SqlConnection connection = new SqlConnection(myDbConnectionString))
                 {
                     connection.Open();
 
@@ -29,13 +29,14 @@ namespace NaughtyChoppersDA.Repositories
                         command.Parameters.Add("@Sender", SqlDbType.UniqueIdentifier).Value = senderId;
                         command.Parameters.Add("@Receiver", SqlDbType.UniqueIdentifier).Value = receiverId;
 
-                        await using (SqlDataReader reader = command.ExecuteReader())
+                        //ExecuteReaderAsync ville måske være nyttig her. Spørg Niels eller Palle!
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
                         {
-                            while (reader.Read())
+                            while (await reader.ReadAsync())
                             {
                                 ChatMessage chatMessage = new();
                                 Guid guid = reader.GetGuid(0);
-                                chatMessage.Sender = GetProfileByProfileId(reader.GetGuid(0));
+                                chatMessage.Sender = await GetProfileByProfileId(reader.GetGuid(0));
                                 chatMessage.Message = reader.GetString(1);
                                 chatMessage.Timestamp = reader.GetDateTime(2);
                                 chatMessages.Add(chatMessage);
@@ -55,12 +56,12 @@ namespace NaughtyChoppersDA.Repositories
             }
         }
 
-        public async void SendMessage(Guid senderId, Guid receiverId, string message)
+        public async Task SendMessage(Guid senderId, Guid receiverId, string message)
         {
             try
             {
                 List<Profile> profiles = new List<Profile>();
-                using (SqlConnection connection = new SqlConnection(myDbConnectionString))
+                await using (SqlConnection connection = new SqlConnection(myDbConnectionString))
                 {
                     connection.Open();
 
@@ -109,11 +110,11 @@ namespace NaughtyChoppersDA.Repositories
                         command.Parameters.Add("@Receiver", SqlDbType.UniqueIdentifier).Value = receiverId;
                         command.Parameters.Add("@AmountOfSkips", SqlDbType.Int).Value = currentChat.Count;
 
-                        await using (SqlDataReader reader = command.ExecuteReader())
+                        await using (SqlDataReader reader = await command.ExecuteReaderAsync())
                         {
-                            while (reader.Read())
+                            while (await reader.ReadAsync())
                             {
-                                chatMessage.Sender = GetProfileByProfileId(reader.GetGuid(0));
+                                chatMessage.Sender = await GetProfileByProfileId(reader.GetGuid(0));
                                 chatMessage.Message = reader.GetString(1);
                                 chatMessage.Timestamp = reader.GetDateTime(2);
                                 currentChat.Add(chatMessage);

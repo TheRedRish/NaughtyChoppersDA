@@ -10,11 +10,11 @@ namespace NaughtyChoppersDA.Repositories
     public class UserRepository : IUserRepository
     {
         private string myDbConnectionString = AccessToDb.ConnectionString;
-        public void CreateUser(string userName, string password)
+        public async Task CreateUser(string userName, string password)
         {
             try
             {
-                using (SqlConnection connection = new SqlConnection(myDbConnectionString))
+                await using (SqlConnection connection = new SqlConnection(myDbConnectionString))
                 {
                     connection.Open();
 
@@ -22,7 +22,7 @@ namespace NaughtyChoppersDA.Repositories
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.AddWithValue("@Username", SqlDbType.NVarChar).Value = userName;
                     command.Parameters.AddWithValue("@Password", SqlDbType.NVarChar).Value = password;
-                    command.ExecuteNonQuery();                 
+                    await command.ExecuteNonQueryAsync();                 
                 }
             }
             catch (SqlException ex)
@@ -43,18 +43,18 @@ namespace NaughtyChoppersDA.Repositories
             }
         }
 
-        public void DeleteUser(User user)
+        public async Task DeleteUser(User user)
         {
             try
             {
-                using (SqlConnection connection = new SqlConnection(myDbConnectionString))
+                await using (SqlConnection connection = new SqlConnection(myDbConnectionString))
                 {
                     connection.Open();
 
                     SqlCommand command = new SqlCommand("RemoveUser", connection);
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.AddWithValue("@Id", SqlDbType.UniqueIdentifier).Value = user.UserId;
-                    command.ExecuteNonQuery();
+                    await command.ExecuteNonQueryAsync();
                 }
             }
             catch (SqlException)
@@ -69,21 +69,11 @@ namespace NaughtyChoppersDA.Repositories
             }
         }
 
-        public void UpdateUser(User user)
-        {
-            throw new NotImplementedException();
-        }
-
-        public User GetUser(Guid? id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public User? GetUser(string userName, string password)
+        public async Task<User?> GetUserByUsernameAndPassword(string userName, string password)
         {
             try
             {
-                using (SqlConnection connection = new SqlConnection(myDbConnectionString))
+                await using(SqlConnection connection = new SqlConnection(myDbConnectionString))
                 {
                     connection.Open();
 
@@ -91,9 +81,9 @@ namespace NaughtyChoppersDA.Repositories
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.AddWithValue("@userName", SqlDbType.NVarChar).Value = userName;
                     command.Parameters.AddWithValue("@password", SqlDbType.NVarChar).Value = password;
-                    using (SqlDataReader reader = command.ExecuteReader())
+                    using(SqlDataReader reader = command.ExecuteReader())
                     {
-                        if (reader.Read())
+                        if (await reader.ReadAsync())
                         {
                             User user = new(reader.GetGuid(0), reader.GetString(1));
                             return user;
@@ -112,20 +102,20 @@ namespace NaughtyChoppersDA.Repositories
             }
         }
 
-        public bool DoesUserExist(string userName)
+        public async Task<bool> DoesUserExist(string userName)
         {
             try
             {
-                using (SqlConnection connection = new SqlConnection(myDbConnectionString))
+                await using(SqlConnection connection = new SqlConnection(myDbConnectionString))
                 {
                     connection.Open();
 
                     SqlCommand command = new SqlCommand("DoesUserExist", connection);
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.AddWithValue("@userName", SqlDbType.UniqueIdentifier).Value = userName;
-                    using (SqlDataReader reader = command.ExecuteReader())
+                    using(SqlDataReader reader = command.ExecuteReader())
                     {
-                        if (reader.Read())
+                        if (await reader.ReadAsync())
                         {
                             return reader.GetInt32(0) == 1 ? true : false;
                         }
@@ -143,5 +133,15 @@ namespace NaughtyChoppersDA.Repositories
                 throw new UserException("Unknown error");
             }
         }
+
+        //public async void UpdateUser(User user)
+        //{
+        //    throw new NotImplementedException();
+        //}
+
+        //public async Task<User> GetUserById(Guid? id)
+        //{
+        //    throw new NotImplementedException();
+        //}
     }
 }

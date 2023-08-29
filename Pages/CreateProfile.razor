@@ -8,114 +8,128 @@
 
 @if (UserService.User != null)
 {
-    <MudContainer MaxWidth="MaxWidth.Small">
-        <MudForm @ref="form" @bind-IsValid="@success">
-            <MudCard>
-                <MudCardContent>
-                    <MudContainer Class="text-center">
-                        <MudText Typo="Typo.h4" Class="mb-2">
-                            Create Profile
-                        </MudText>
-                    </MudContainer>
+    if(Loading == true)
+    {
+        <LoadingLayout />
+    }
+    else
+    {
+        <MudContainer MaxWidth="MaxWidth.Small">
+            <MudForm @ref="form" @bind-IsValid="@Success">
+                <MudCard>
+                    <MudCardContent>
+                        <MudContainer Class="text-center">
+                            <MudText Typo="Typo.h4" Class="mb-2">
+                                Create Profile
+                            </MudText>
+                        </MudContainer>
 
-                    <MudTextField Label="Name"
-                                  Variant="Variant.Outlined"
-                                  Required="true"
-                                  RequiredError="The Name field is required"
-                    @bind-Value="profile.Name" />
+                        <MudTextField Label="Name"
+                                      Variant="Variant.Outlined"
+                                      Required="true"
+                                      RequiredError="The Name field is required"
+                        @bind-Value="profile.Name" />
 
-                    <MudDatePicker Label="Date of Birth"
+                        <MudDatePicker Label="Date of Birth"
                                    Variant="Variant.Outlined"
                                    IsDateDisabledFunc="@((DateTime dt)=>(dt > DateTime.Now))"
                                    DisableToolbar="true"
                                    OpenTo="OpenTo.Year"
                                    Required="true"
                                    RequiredError="Date of Birth is required"
-                    @bind-Date="profile.DateOfBirth" />
+                                   @bind-Date="profile.DateOfBirth" />
 
-                    <MudSelect Label="Helicopter Model"
-                               Variant="Variant.Outlined"
-                               Required="true"
-                               RequiredError="Helicopter Model is required"
-                    @bind-Value="profile.Model!.Id">
-                        @foreach (var model in helicopterModels)
-                        {
-                            <MudSelectItem Value="@model.Id">@model.Name</MudSelectItem>
-                        }
-                    </MudSelect>
 
-                    <MudFileUpload T="IBrowserFile" Context="selectedFile"
+                        <MudSelect Label="Helicopter Model"
+                                   Variant="Variant.Outlined"
                                    Required="true"
-                                   RequiredError="Profile image is required"
-                                   Accept=".jpg,.jpeg,.png,.gif"
-                    @bind-Files="selectedFile">
-                        <ButtonTemplate>
-                            <MudButton HtmlTag="label"
-                                       Variant="Variant.Filled"
-                                       Color="Color.Primary"
-                                       for="@selectedFile">
-                                Upload File
-                            </MudButton>
-                        </ButtonTemplate>
-                        <SelectedTemplate>
-                            @if (selectedFile != null)
+                                   RequiredError="Helicopter Model is required"
+                        @bind-Value="profile.Model!.Id">
+                            @foreach (var model in helicopterModels)
                             {
-                                <MudText>@selectedFile.Name</MudText>
+                                <MudSelectItem Value="@model.Id">@model.Name</MudSelectItem>
                             }
-                            else
+                        </MudSelect>
+
+                        <MudFileUpload T="IBrowserFile" Context="selectedFile"
+                                       Required="true"
+                                       RequiredError="Profile image is required"
+                                       Accept=".jpg,.jpeg,.png,.gif"
+                        @bind-Files="selectedFile">
+                            <ButtonTemplate>
+                                <MudButton HtmlTag="label"
+                                           Variant="Variant.Filled"
+                                           Color="Color.Primary"
+                                           for="@selectedFile">
+                                    Upload File
+                                </MudButton>
+                            </ButtonTemplate>
+                            <SelectedTemplate>
+                                @if (selectedFile != null)
+                                {
+                                    if (selectedFile.Size > 500 * 1024)
+                                    {
+                                        <MudText>Image was too big to handle!. Max file size is 500KB</MudText>
+                                        return;
+                                    }
+                                    <MudText>@selectedFile.Name</MudText>
+                                }
+                                else
+                                {
+                                    <MudText>No Image Was Selected. Select One</MudText>
+                                }
+                            </SelectedTemplate>
+                        </MudFileUpload>
+
+                        <MudTextField Label="Postal Code"
+                                      Variant="Variant.Outlined" @bind-Value="profile.PostalCode"
+                                      Required="true"
+                                      RequiredError="The PostalCode field is required" @onblur="FetchCity" />
+
+                        <MudTextField Label="City"
+                                      Variant="Variant.Outlined" @bind-Value="profile.City"
+                                      Required="true"
+                                      RequiredError="City is required" />
+
+                        <MudSelect T="string" Label="Select Hobby Interests"
+                                   HelperText="What do you like to do in your spare time?"
+                                   Variant="Variant.Outlined"
+                                   MultiSelection="true" @bind-Value="displayedHobbyInterests"
+                                   Required="true"
+                                   RequiredError="The Hobby Interest field is required"
+                        @bind-SelectedValues="selectedHobbyInterests">
+                            @foreach (HobbyInterest hobbyInterest in hobbyInterests)
                             {
-                                <MudText>No File Selected</MudText>
+                                <MudSelectItem T="string" Value="@hobbyInterest.Name">@hobbyInterest.Name</MudSelectItem>
                             }
-                        </SelectedTemplate>
-                    </MudFileUpload>
+                        </MudSelect>
 
-                    <MudTextField Label="Postal Code"
-                                  Variant="Variant.Outlined" @bind-Value="profile.PostalCode"
-                                  Required="true"
-                                  RequiredError="The PostalCode field is required" @onblur="FetchCity" />
+                        <MudSelect T="string" Label="Select Model Interests"
+                                   HelperText="Who are in interested in?"
+                                   Variant="Variant.Outlined"
+                                   MultiSelection="true" @bind-Value="displayedModelInterests"
+                                   Required="true"
+                                   RequiredError="The Model Interest field is required"
+                        @bind-SelectedValues="selectedModelInterests">
+                            @foreach (HelicopterModel helicopterModel in helicopterModels)
+                            {
+                                <MudSelectItem T="string" Value="@helicopterModel.Name">@helicopterModel.Name</MudSelectItem>
+                            }
+                        </MudSelect>
 
-                    <MudTextField Label="City"
-                                  Variant="Variant.Outlined" @bind-Value="profile.City"
-                                  Required="true"
-                                  RequiredError="City is required" />
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-4" OnClick="@(()=>HandleSubmit())">
+                            Create Profile
+                        </MudButton>
+                    </MudCardContent>
+                </MudCard>
+            </MudForm>
+        </MudContainer>
+    }
 
-                    <MudSelect T="string" Label="Select Hobby Interests"
-                               HelperText="What do you like to do in your spare time?"
-                               Variant="Variant.Outlined"
-                               MultiSelection="true" @bind-Value="displayedHobbyInterests"
-                               Required="true"
-                               RequiredError="The Hobby Interest field is required"
-                    @bind-SelectedValues="selectedHobbyInterests">
-                        @foreach (HobbyInterest hobbyInterest in hobbyInterests)
-                        {
-                            <MudSelectItem T="string" Value="@hobbyInterest.Name">@hobbyInterest.Name</MudSelectItem>
-                        }
-                    </MudSelect>
-
-                    <MudSelect T="string" Label="Select Model Interests"
-                               HelperText="Who are in interested in?"
-                               Variant="Variant.Outlined"
-                               MultiSelection="true" @bind-Value="displayedModelInterests"
-                               Required="true"
-                               RequiredError="The Model Interest field is required"
-                    @bind-SelectedValues="selectedModelInterests">
-                        @foreach (HelicopterModel helicopterModel in helicopterModels)
-                        {
-                            <MudSelectItem T="string" Value="@helicopterModel.Name">@helicopterModel.Name</MudSelectItem>
-                        }
-                    </MudSelect>
-
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-4" OnClick="@(()=>HandleSubmit())">
-                        Create Profile
-                    </MudButton>
-                </MudCardContent>
-            </MudCard>
-        </MudForm>
-    </MudContainer>
-
-    <button type="button" @onclick="GetProfile">Get profile with userId</button>
-    <button type="button" @onclick="DeleteProfile">Delete Profile</button>
+@*    <button type="button" @onclick="GetProfile">Get profile with userId</button>
+    <button type="button" @onclick="DeleteProfile">Delete Profile</button>*@
 }
+
 @code {
     public Profile profile = new();
     public List<HelicopterModel> helicopterModels = new List<HelicopterModel>();
@@ -128,13 +142,16 @@
     private EditContext editContext;
     private ValidationMessageStore validationMessageStore;
     MudForm? form;
-    bool success;
+    private string selectedImage;
+    private bool Success;
+    private bool Loading = false;
 
     protected async override Task OnInitializedAsync()
     {
         if (UserService.User == null)
         {
             NavigationManager.NavigateTo("/user-login");
+            return;
         }
 
         // Setting default model
@@ -143,22 +160,22 @@
         editContext = new EditContext(profile);
         validationMessageStore = new ValidationMessageStore(editContext);
 
-        hobbyInterests = ProfileService.GetAllHobbyInterests();
-        helicopterModels = ProfileService.GetAllHelicopterModels();
+        hobbyInterests = await ProfileService.GetAllHobbyInterests();
+        helicopterModels = await ProfileService.GetAllHelicopterModels();
     }
 
-    private void FetchCity()
+    private async Task FetchCity()
     {
         if (!string.IsNullOrEmpty(profile.PostalCode))
         {
-            profile.City = ProfileService.GetCityByPostalCode(profile.PostalCode);
+            profile.City = await ProfileService.GetCityByPostalCode(profile.PostalCode);
         }
     }
 
     private async Task HandleFileSelection()
     {
         // Check if a file was selected
-        if (selectedFile != null)
+        if (selectedFile != null && selectedFile.Size < 500 * 1024)
         {
             // Convert the selected file to a byte array
             using (var memoryStream = new MemoryStream())
@@ -170,42 +187,44 @@
 
                 // You can set the byte array to the profile's image property
                 profile.ProfileImage = imageDataBytes;
-
-                // You can also handle storing the byte array in your database
             }
         }
     }
+
     private void AddHobbyInterrestsToProfile()
     {
         List<HobbyInterest> filteredHobbyInterests = hobbyInterests.Where(hobbyInterest => selectedHobbyInterests.Contains(hobbyInterest.Name)).ToList();
         profile.HobbyInterests = filteredHobbyInterests;
     }
+
     private void AddHelicopterModelInterrestsToProfile()
     {
         List<HelicopterModel> filteredHelicopterModelInterests = helicopterModels.Where(helicopterModel => selectedModelInterests.Contains(helicopterModel.Name)).ToList();
         profile.HelicopterModelInterests = filteredHelicopterModelInterests;
     }
 
-    private void GetProfile()
+    private async Task GetProfile()
     {
-        ProfileService.Profile = ProfileService.GetProfileByUserId(UserService.User.UserId);
+        ProfileService.Profile = await ProfileService.GetProfileByUserId(UserService.User.UserId);
     }
 
-    private void DeleteProfile()
+    private async void DeleteProfile()
     {
         if (ProfileService.Profile?.ProfileId != null)
         {
-            ProfileService.DeleteProfile((Guid)ProfileService.Profile.ProfileId);
+            await ProfileService.DeleteProfile((Guid)ProfileService.Profile.ProfileId);
         }
     }
 
     private async void HandleSubmit()
     {
         await form.Validate();
-        if (!success)
+        if (!Success)
         {
             return;
         }
+
+        Loading = true;
 
         await HandleFileSelection();
         AddHobbyInterrestsToProfile();
@@ -213,8 +232,9 @@
 
         if (UserService.User != null)
         {
-            ProfileService.CreateProfile(profile, UserService.User);
+            await ProfileService.CreateProfile(profile, UserService.User);
         }
+        Loading = false;
         NavigationManager.NavigateTo("/");
     }
 }

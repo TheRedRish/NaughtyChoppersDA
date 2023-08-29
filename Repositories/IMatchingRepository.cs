@@ -5,11 +5,14 @@ namespace NaughtyChoppersDA.Repositories
 {
     public interface IMatchingRepository
     {
-        public List<Profile> GetFilteredListOfProfiles(Guid profileId);
+        public Task<List<Profile>> GetFilteredListOfProfiles(Guid profileId);
 
-        public void LikeProfileAsync(Guid profileId, Guid likedProfileId, bool? likedBack);
+        public Task LikeOrDislikeProfileAsync(Guid profileId, Guid likedProfileId, bool liked);
 
-        public Task<List<Profile>> GetAllMatches(Guid? profileId);
+        public Task<List<Profile>> GetAllMatches(Guid profileId);
 
-	}
+        public Task<List<Guid>> ListOfLikersAndLiked(Guid profileId);
+
+
+    }
 }

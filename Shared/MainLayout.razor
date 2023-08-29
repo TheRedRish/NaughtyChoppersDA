@@ -1,5 +1,6 @@
 ﻿@inherits LayoutComponentBase
 @using NaughtyChoppersDA.Services
+@inject NavigationManager NavigationManager
 @inject IUserService UserService
 @inject IProfileService ProfileService
 
@@ -12,7 +13,7 @@
 
         @if (ProfileService.Profile != null)
         {
-            <MudLink Href="/Chat" Class="text-white mx-3">Chat</MudLink>
+            <MudLink Href="/chat" Class="text-white mx-3">Chat</MudLink>
             <MudLink Href="/DatingPage" Class="text-white mx-3">Dating Page</MudLink>
             <MudSpacer />
             <MudMenu ActivationEvent="@MouseEvent.MouseOver" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter">
@@ -37,8 +38,8 @@
         }
         @if (UserService.User == null)
         {
-            <MudTooltip Class="mx-3" Text="Create User">
-                <MudIconButton Href="/user-register" Icon="@Icons.Material.Filled.AddCircle" Color="Color.Default" Size="Size.Large" />
+            <MudTooltip Class="mx-3" Text="Register">
+                <MudIconButton  Href="/user-register" Icon="@Icons.Material.Filled.AddCircle" Color="Color.Default" Size="Size.Large" />
             </MudTooltip>
             <MudTooltip Class="mx-3" Text="Login">
                 <MudIconButton Href="/user-login" Icon="@Icons.Material.Filled.Login" Color="Color.Info" Size="Size.Large" />

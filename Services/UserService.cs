@@ -1,4 +1,5 @@
-﻿using NaughtyChoppersDA.Entities;
+﻿using Microsoft.AspNetCore.Components;
+using NaughtyChoppersDA.Entities;
 using NaughtyChoppersDA.Globals;
 using NaughtyChoppersDA.Repositories;
 
@@ -8,6 +9,7 @@ namespace NaughtyChoppersDA.Services
     public class UserService : IUserService
     {
         private IUserRepository _repository;
+
         public UserService(IUserRepository userRepository)
         {
             _repository = userRepository;
@@ -15,11 +17,11 @@ namespace NaughtyChoppersDA.Services
 
         public User? User { get; set; }
 
-        public string CreateUser(string userName, string password)
+        public async Task<string> CreateUser(string userName, string password)
         {
             try
             {
-                _repository.CreateUser(userName, password);
+                await _repository.CreateUser(userName, password);
                 return "Success";
             }
             catch (UserException ex)
@@ -28,11 +30,11 @@ namespace NaughtyChoppersDA.Services
             }
         }
 
-        public void DeleteUser(User user)
+        public async Task DeleteUser(User user)
         {
             try
             {
-                _repository.DeleteUser(user);
+                await _repository.DeleteUser(user);
             }
             catch (UserException ex)
             {
@@ -40,7 +42,7 @@ namespace NaughtyChoppersDA.Services
             }
         }
 
-        public string Login(string userName, string password)
+        public async Task<string> Login(string userName, string password)
         {
             if (string.IsNullOrWhiteSpace(userName) || string.IsNullOrWhiteSpace(password)) 
             {
@@ -48,7 +50,7 @@ namespace NaughtyChoppersDA.Services
             }
             try
             {
-                User = _repository.GetUser(userName, password);
+                User = await _repository.GetUserByUsernameAndPassword(userName, password);
 
                 if (User == null)
                 {
@@ -69,21 +71,22 @@ namespace NaughtyChoppersDA.Services
             User = null;
         }
 
-        public bool UpdateUser(User user)
-        {
-            throw new NotImplementedException();
-        }
 
-        public bool DoesUserExist(string userName)
+        public async Task<bool> DoesUserExist(string userName)
         {
             try
             {
-                return _repository.DoesUserExist(userName);
+                 return await _repository.DoesUserExist(userName);
             }
             catch (UserException ex)
             {
                 throw ex;
             }
         }
+
+        //public bool UpdateUser(User user)
+        //{
+        //    throw new NotImplementedException();
+        //}
     }
 }

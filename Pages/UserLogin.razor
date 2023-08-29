@@ -27,6 +27,9 @@
                         <input type="password" class="form-control" @bind="@Password"/>
                     </div>
                 </div>
+                <div>
+                    <p style="color: red">@ErrorMessage</p>
+                </div>
                 <div class="form-group" >
                     <button class="btn btn-primary btn-block" Id="loginBtn" @onclick="LoginUser">Login</button>
                     @if (!LoginSuccessful)
@@ -97,11 +100,11 @@
     private string Password;
 
     private bool LoginSuccessful;
-    private string ErrorMessage;
+    private string ErrorMessage = "";
 
-    private void LoginUser()
+    private async void LoginUser()
     {
-        string response = UserService.Login(Username, StringUtils.HashStringToSHA512(Password));
+        string response = await UserService.Login(Username, StringUtils.HashStringToSHA512(Password));
         if (response != "Success")
         {
             LoginSuccessful = false;

@@ -12,12 +12,12 @@ namespace NaughtyChoppersDA.Repositories
     {
         private string myDbConnectionString = AccessToDb.ConnectionString;
 
-        public List<Profile> GetProfilesWithMatchingModelInterest(Guid profileId)
+        public async Task<List<Profile>> GetProfilesWithMatchingModelInterest(Guid profileId)
         {
             try
             {
                 List<Profile> profiles = new List<Profile>();
-                using (SqlConnection connection = new SqlConnection(myDbConnectionString))
+                await using (SqlConnection connection = new SqlConnection(myDbConnectionString))
                 {
                     connection.Open();
 
@@ -32,9 +32,9 @@ namespace NaughtyChoppersDA.Repositories
 
                         using (SqlDataReader reader = command.ExecuteReader())
                         {
-                            while (reader.Read())
+                            while (await reader.ReadAsync())
                             {
-                                profiles.Add(GetProfileByProfileId(reader.GetGuid(0)));
+                                profiles.Add(await GetProfileByProfileId(reader.GetGuid(0)));
                             }
                         }
                     }
@@ -51,12 +51,12 @@ namespace NaughtyChoppersDA.Repositories
             }
         }
 
-        public List<Guid> ListOfLikersAndLiked(Guid profileId)
+        public async Task<List<Guid>> ListOfLikersAndLiked(Guid profileId)
         {
             try
             {
                 List<Guid> profileIds = new();
-                using (SqlConnection connection = new SqlConnection(myDbConnectionString))
+                await using (SqlConnection connection = new SqlConnection(myDbConnectionString))
                 {
                     connection.Open();
 
@@ -71,7 +71,7 @@ namespace NaughtyChoppersDA.Repositories
 
                         using (SqlDataReader reader = command.ExecuteReader())
                         {
-                            while (reader.Read())
+                            while (await reader.ReadAsync())
                             {
                                 profileIds.Add(reader.GetGuid(0));
                             }
@@ -80,7 +80,7 @@ namespace NaughtyChoppersDA.Repositories
                         command.CommandText = "GetLikersId";
                         using (SqlDataReader reader = command.ExecuteReader())
                         {
-                            while (reader.Read())
+                            while (await reader.ReadAsync())
                             {
                                 profileIds.Add(reader.GetGuid(0));
                             }
@@ -99,11 +99,11 @@ namespace NaughtyChoppersDA.Repositories
             }
         }
 
-        public List<Profile> GetFilteredListOfProfiles(Guid profileId)
+        public async Task<List<Profile>> GetFilteredListOfProfiles(Guid profileId)
         {
-            List<Profile> profileList = GetProfilesWithMatchingModelInterest(profileId);
+            List<Profile> profileList = await GetProfilesWithMatchingModelInterest(profileId);
 
-            List<Guid> profileIds = ListOfLikersAndLiked(profileId);
+            List<Guid> profileIds = await ListOfLikersAndLiked(profileId);
 
             foreach (Guid id in profileIds)
             {
@@ -126,11 +126,11 @@ namespace NaughtyChoppersDA.Repositories
             }
         }
 
-        public async void LikeProfileAsync(Guid myProfileId, Guid theirProfileId, bool? likedBack)
+        public async Task LikeOrDislikeProfileAsync(Guid myProfileId, Guid theirProfileId, bool liked)
         {
             try
             {
-                using (SqlConnection connection = new SqlConnection(myDbConnectionString))
+                await using(SqlConnection connection = new SqlConnection(myDbConnectionString))
                 {
                     connection.Open();
 
@@ -143,7 +143,7 @@ namespace NaughtyChoppersDA.Repositories
                         // Add parameters to the stored procedure
                         command.Parameters.Add("@SenderId", SqlDbType.UniqueIdentifier).Value = myProfileId;
                         command.Parameters.Add("@ReceiverId", SqlDbType.UniqueIdentifier).Value = theirProfileId;
-                        command.Parameters.Add("@Liked", SqlDbType.Bit).Value = likedBack;
+                        command.Parameters.Add("@Liked", SqlDbType.Bit).Value = liked;
                         await command.ExecuteNonQueryAsync();
                     }
                 }
@@ -158,7 +158,7 @@ namespace NaughtyChoppersDA.Repositories
             }
         }
 
-        public async Task<List<Profile>> GetAllMatches(Guid? profileId)
+        public async Task<List<Profile>> GetAllMatches(Guid profileId)
         {
 			try
 			{
@@ -178,9 +178,9 @@ namespace NaughtyChoppersDA.Repositories
 
 						await using (SqlDataReader reader = command.ExecuteReader())
 						{
-							while (reader.Read())
+							while (await reader.ReadAsync())
 							{
-								profiles.Add(GetProfileByProfileId(reader.GetGuid(0)));
+								profiles.Add(await GetProfileByProfileId(reader.GetGuid(0)));
 							}
 						}
 					}
