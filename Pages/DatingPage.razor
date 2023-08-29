@@ -105,14 +105,14 @@ else
 
     private async void LikeProfile()
     {
-        await matchingRepository.LikeProfileAsync(profileService.Profile!.ProfileId, currentProfile!.ProfileId!, true);
+        await matchingRepository.LikeOrDislikeProfileAsync(profileService.Profile!.ProfileId, currentProfile!.ProfileId!, true);
         profiles.RemoveAt(currentIndex);
         if (profiles.Count == 0) StateHasChanged();
     }
 
     private async void DislikeProfile()
     {
-        await matchingRepository.LikeProfileAsync(profileService.Profile!.ProfileId, currentProfile!.ProfileId!, false);
+        await matchingRepository.LikeOrDislikeProfileAsync(profileService.Profile!.ProfileId, currentProfile!.ProfileId!, false);
         profiles.RemoveAt(currentIndex);
         if (profiles.Count == 0) StateHasChanged();
     }

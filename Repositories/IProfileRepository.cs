@@ -6,7 +6,7 @@ namespace NaughtyChoppersDA.Repositories
     {
         public Task CreateProfile(Profile profile, User user);
 
-        public Task DeleteProfile(Guid profileId); // TODO: Remember likes and chat
+        public Task DeleteProfile(Guid profileId);
 
         public Task<List<HobbyInterest>> GetAllHobbyInterests();
 

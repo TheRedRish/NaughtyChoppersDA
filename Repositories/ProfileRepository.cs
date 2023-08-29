@@ -450,7 +450,7 @@ namespace NaughtyChoppersDA.Repositories
                 throw new UserException("Unknown error");
             }
 
-        }// TODO: might be redundant
+        }
 
         public async Task<List<HelicopterModel>> GetAllHelicoptersModels()
         {

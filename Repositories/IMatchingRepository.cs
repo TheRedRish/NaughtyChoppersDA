@@ -7,7 +7,7 @@ namespace NaughtyChoppersDA.Repositories
     {
         public Task<List<Profile>> GetFilteredListOfProfiles(Guid profileId);
 
-        public Task LikeProfileAsync(Guid profileId, Guid likedProfileId, bool? likedBack);
+        public Task LikeOrDislikeProfileAsync(Guid profileId, Guid likedProfileId, bool liked);
 
         public Task<List<Profile>> GetAllMatches(Guid profileId);
 

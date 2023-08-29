@@ -126,7 +126,7 @@ namespace NaughtyChoppersDA.Repositories
             }
         }
 
-        public async Task LikeProfileAsync(Guid myProfileId, Guid theirProfileId, bool? likedBack)
+        public async Task LikeOrDislikeProfileAsync(Guid myProfileId, Guid theirProfileId, bool liked)
         {
             try
             {
@@ -143,7 +143,7 @@ namespace NaughtyChoppersDA.Repositories
                         // Add parameters to the stored procedure
                         command.Parameters.Add("@SenderId", SqlDbType.UniqueIdentifier).Value = myProfileId;
                         command.Parameters.Add("@ReceiverId", SqlDbType.UniqueIdentifier).Value = theirProfileId;
-                        command.Parameters.Add("@Liked", SqlDbType.Bit).Value = likedBack;
+                        command.Parameters.Add("@Liked", SqlDbType.Bit).Value = liked;
                         await command.ExecuteNonQueryAsync();
                     }
                 }
