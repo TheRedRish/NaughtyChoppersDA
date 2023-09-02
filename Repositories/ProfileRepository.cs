@@ -32,6 +32,7 @@ namespace NaughtyChoppersDA.Repositories
                     command.Parameters.AddWithValue("@ModelId", SqlDbType.Int).Value = profile.Model?.Id;
                     command.Parameters.AddWithValue("@ProfileImg", SqlDbType.VarBinary).Value = profile.ProfileImage;
                     command.Parameters.AddWithValue("@PostalCode", SqlDbType.NVarChar).Value = profile.PostalCode;
+                    command.Parameters.AddWithValue("@Bot", SqlDbType.Bit).Value = 0;
                     command.Parameters.AddWithValue("@UserId", SqlDbType.UniqueIdentifier).Value = user.UserId;
 
                     await command.ExecuteNonQueryAsync();
@@ -118,18 +119,18 @@ namespace NaughtyChoppersDA.Repositories
                                 }
                             }
                             profile.PostalCode = reader.GetString(5);
+                            profile.Bot = reader.GetBoolean(6);
+
+                            profile.HobbyInterests = await GetAllHobbyInterestsFromProfile(profile.ProfileId);
+                            profile.HelicopterModelInterests = await GetHelicopterModelInterstsFromProfile(profile.ProfileId);
+                            if (profile.PostalCode != null)
+                            {
+                                profile.City = await GetCityByPostalCode(profile.PostalCode);
+                            }
                         }
                     }
                 }
-                if(profile.ProfileId != null)
-                {
-                    profile.HobbyInterests = await GetAllHobbyInterestsFromProfile(profile.ProfileId);
-                    profile.HelicopterModelInterests = await GetHelicopterModelInterstsFromProfile(profile.ProfileId);
-                    if (profile.PostalCode != null)
-                    {
-                        profile.City = await GetCityByPostalCode(profile.PostalCode);
-                    }
-                }
+                   
                 return profile;
             }
             catch (SqlException)
@@ -184,6 +185,7 @@ namespace NaughtyChoppersDA.Repositories
                                 }
                             }
                             profile.PostalCode = reader.GetString(5);
+                            profile.Bot = reader.GetBoolean(6);
 
                             profile.HobbyInterests = await GetAllHobbyInterestsFromProfile(profile.ProfileId);
                             profile.HelicopterModelInterests = await GetHelicopterModelInterstsFromProfile(profile.ProfileId);

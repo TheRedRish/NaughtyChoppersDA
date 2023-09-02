@@ -84,14 +84,15 @@ for user in user_ids:
     random_model = random.randint(1, 7)
     random_profileimg = get_random_image_byte_array(directory_path)
     random_postalcode = random.choice(postal_codes)[0]
+    random_bot = 1
     random_user = user[0]
 
     # SQL query to insert data
-    insert_query = f'INSERT INTO ProfileInformation (Name, Age, Model, ProfileImg, PostalCode, UserId) VALUES (?, ?, ?, ?, ?, ?)'
+    insert_query = f'INSERT INTO ProfileInformation (Name, Age, Model, ProfileImg, PostalCode, Bot, UserId) VALUES (?, ?, ?, ?, ?, ?, ?)'
 
     # Execute the query
     cursor.execute(insert_query,
-                   (random_name, random_date, random_model, random_profileimg, random_postalcode, random_user))
+                   (random_name, random_date, random_model, random_profileimg, random_postalcode, random_bot, random_user))
     connection.commit()
 
 select_query = (f'SELECT ProfileInformation.Id FROM ProfileInformation '

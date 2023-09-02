@@ -64,7 +64,7 @@ CREATE TABLE ProfileInformation(
 [Model] INT,
 [ProfileImg] VARBINARY(MAX),
 [PostalCode] NVARCHAR(10),
-
+[Bot] BIT,
 [UserId] UNIQUEIDENTIFIER,
 
 FOREIGN KEY ([PostalCode]) REFERENCES [PostalCodes](PostalCode),
