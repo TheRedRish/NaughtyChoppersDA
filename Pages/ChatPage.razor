@@ -2,34 +2,36 @@
 @page "/chat"
 @using NaughtyChoppersDA.Globals.Utils;
 @using NaughtyChoppersDA.Repositories;
-@inject IProfileService ProfileService
+@using OpenAI.Net;
+@inject IProfileService ProfileService;
+@inject IOpenAIService openAiService;
 
 @if (ProfileService.Profile != null)
 {
-<MudLayout>
+    <MudLayout>
         @if (Loading == true)
         {
             <LoadingLayout />
         }
         else
         {
-            <MudDrawer Open = "true" ClipMode="DrawerClipMode.Always" Elevation="1" Variant="@DrawerVariant.Persistent">
-            <MudDrawerHeader>
-                <MudText Typo="Typo.h6">Matches</MudText>
-            </MudDrawerHeader>
-            <MudNavMenu>
-            <MudTextField @bind-Value="searchText" Placeholder="Search" Variant="Variant.Outlined" />
+            <MudDrawer Open="true" ClipMode="DrawerClipMode.Always" Elevation="1" Variant="@DrawerVariant.Persistent">
+                <MudDrawerHeader>
+                    <MudText Typo="Typo.h6">Matches</MudText>
+                </MudDrawerHeader>
+                <MudNavMenu>
+                    <MudTextField @bind-Value="searchText" Placeholder="Search" Variant="Variant.Outlined" />
                     @foreach (var match in matches.Where(m => m.Name!.ToLower().Contains(searchText.ToLower())))
                     {
                         <div style="display: flex; text-align: center;">
-                            <MudImage Class="m-1 align-self-end rounded-circle" Src="@(profileImage)" Width="40" Height="40" />
+                            <MudImage Class="m-1 align-self-end rounded-circle" Src="@(ImageUtils.ConvertProfileImageToSrcImage(match.ProfileImage!))" Width="40" Height="40" />
                             <MudNavLink Href="@($"/chat/{match.ProfileId}")" Match="NavLinkMatch.All">@match.Name</MudNavLink>
                         </div>
-                    }    
+                    }
                 </MudNavMenu>
             </MudDrawer>
             <MudMainContent Class="pt-0 px-0">
-                @if(otherProfileIdParameter != null)
+                @if (otherProfileIdParameter != null)
                 {
                     <MudContainer Class="chat-container" MaxWidth="MaxWidth.ExtraExtraLarge">
                         <MudPaper Elevation="10" Class="p-2">
@@ -38,31 +40,33 @@
                                     @otherProfile.Name
                                 </MudText>
                             </MudContainer>
-                            <div class="chat-messages" style="max-height: 80vh; min-height: 80vh; overflow-y: auto;">
-                                @foreach (var message in messages)
-                                {
-                                    if (message.Sender.ProfileId == ProfileService.Profile.ProfileId)
+                            <div class="chat-messages" style="max-height: 80vh; min-height: 80vh;">
+                                <div>
+                                    @foreach (var message in messages)
                                     {
-                                        <div class="d-flex flex-wrap justify-end my-3">
-                                            <MudText Class="chat-message mud-theme-primary px-3 py-2 mx-2 rounded-s-xl rounded-te-xl " title="@ProfileService.Profile.Name">@message.Message </MudText>
-                                            <MudImage Class="m-1 align-self-end rounded-circle" Src="@(profileImage)" Width="40" Height="40" />
-                                            <MudText Class="timestamp-text timestamp-text--left">
-                                                @GetTimeStamp(@message.Timestamp)
-                                            </MudText>
-                                        </div>
+                                        if (message.Sender.ProfileId == ProfileService.Profile.ProfileId)
+                                        {
+                                            <div class="d-flex flex-wrap justify-end my-3">
+                                                <MudText Class="chat-message mud-theme-primary px-3 py-2 mx-2 rounded-s-xl rounded-te-xl " title="@ProfileService.Profile.Name">@message.Message </MudText>
+                                                <MudImage Class="m-1 align-self-end rounded-circle" Src="@(profileImage)" Width="40" Height="40" />
+                                                <MudText Class="timestamp-text timestamp-text--right">
+                                                    @GetTimeStamp(@message.Timestamp)
+                                                </MudText>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="d-flex flex-wrap my-3">
+                                                <MudImage Class="m-1 align-self-end rounded-circle" Src="@(otherProfileImage)" Width="40" Height="40" />
+                                                <MudText Class="chat-message mud-theme-secondary flex-wrap px-3 py-2 mx-2 rounded-e-xl rounded-ts-xl" title="@otherProfile.Name">@message.Message </MudText>
+                                                <MudText Class="timestamp-text px-2 timestamp-text--left">
+                                                    @GetTimeStamp(@message.Timestamp)
+                                                </MudText>
+                                            </div>
+                                        }
+                                        counter++;
                                     }
-                                    else
-                                    {
-                                        <div class="d-flex flex-wrap my-3">
-                                            <MudImage Class="m-1 align-self-end rounded-circle" Src="@(otherProfileImage)" Width="40" Height="40" />
-                                            <MudText Class="chat-message mud-theme-secondary flex-wrap px-3 py-2 mx-2 rounded-e-xl rounded-ts-xl" title="@otherProfile.Name">@message.Message </MudText>
-                                            <MudText Class="timestamp-text px-2 timestamp-text--right">
-                                                @GetTimeStamp(@message.Timestamp)
-                                            </MudText>
-                                        </div>
-                                    }
-                                    counter++;
-                                }
+                                </div>
                             </div>
                             <div class="d-flex" style="position: sticky;">
                                 <MudTextField Class="flex-grow-1 mt-0" @bind-Value="messageText" Variant="Variant.Outlined" FullWidth="true" Placeholder="Type your message..." />
@@ -72,16 +76,23 @@
                     </MudContainer>
                 }
             </MudMainContent>
-            
+
         }
-</MudLayout>
-    
+    </MudLayout>
+
 }
 <style>
+
     .chat-message {
         max-width: 70%;
         word-wrap: break-word;
         overflow-wrap: break-word;
+    }
+
+    .chat-messages {
+        display: flex;
+        flex-direction: column-reverse;
+        overflow-y: scroll;
     }
 
     .timestamp-text {
@@ -95,7 +106,7 @@
     }
 
     .timestamp-text--left {
-        text-align: end;
+        text-align: start;
     }
 </style>
 @code {
@@ -105,6 +116,7 @@
 
     [Parameter]
     public string? otherProfileIdParameter { get; set; } = null;
+
     private Guid otherProfileId;
 
     private IChatRepository chatRepositories = new ChatRepository();
@@ -117,21 +129,42 @@
     private string searchText = "";
     private int counter = 0;
     private const int UpdateIntervalSeconds = 1;
+    private static string primeDirective = "";
+    private List<Message> messageHistory = new List<Message>();
+
     public bool Loading = false;
 
     protected async override Task OnParametersSetAsync()
     {
-        if(otherProfileIdParameter != null)
+        if (otherProfileIdParameter != null)
         {
             Loading = true;
             await UpdateOtherProfile();
 
             messages = await chatRepositories.GetAllChatMessages(ProfileService.Profile!.ProfileId, otherProfile.ProfileId);
 
+            // Setup the ChatMessages for the AI with the history of the chat
+            if (otherProfile.Bot)
+            {
+                primeDirective = $"VERY IMPORTANT match the language of my country in your replay: Denmark\r\nThis prompt is just written in english, i want you to answer with the language of Denmark\r\nAct like you are a {otherProfile.Model} helicopter. Your name is name {otherProfile.Name} and age {otherProfile.Age}, you come from {otherProfile.City} that is on a dating site, a charming and adventurous {otherProfile.Model} who's ready to date other helicopters!\r\nKeep your answers short 1-2 lines, unless you get a longer message first, informal and like you are in a 1-1 chat with someone named {ProfileService.Profile.Name}.";
+                messageHistory.Add(Message.Create(ChatRoleType.System, primeDirective));
+                foreach (ChatMessage message in messages)
+                {
+                    if (message.Sender == ProfileService.Profile)
+                    {
+                        messageHistory.Add(Message.Create(ChatRoleType.User, message.Message));
+                    }
+                    else
+                    {
+                        messageHistory.Add(Message.Create(ChatRoleType.Assistant, message.Message));
+                    }
+                }
+            }
+
             Loading = false;
             while (true)
             {
-                if (ProfileService.Profile == null) 
+                if (ProfileService.Profile == null)
                 {
                     break;
                 }
@@ -158,25 +191,52 @@
         matches = await matchingRepository.GetAllMatches(ProfileService.Profile!.ProfileId);
     }
 
+
+
+    private async Task<string> ChatGPTGetMessage(string messageToSend)
+    {
+        string currentMessage = "";
+        messageHistory.Add(Message.Create(ChatRoleType.Assistant, messageToSend));
+
+        await foreach (var t in openAiService.Chat.GetStream(messageHistory, options =>
+        {
+            options.Model = ModelTypes.GPT35Turbo;
+            options.MaxTokens = 512;
+        }))
+        {
+            currentMessage += t?.Result?.Choices[0].Delta?.Content;
+        }
+
+        messageHistory.Add(Message.Create(ChatRoleType.Assistant, currentMessage));
+
+        return currentMessage;
+    }
+
     private string GetTimeStamp(DateTime time)
     {
         DateTime currentDateTime = DateTime.UtcNow;
         TimeSpan timeDifference = currentDateTime - time;
 
-        if (timeDifference.Days < 0)
+        if (timeDifference.Days < 1)
         {
             return time.ToString("HH:mm");
         }
 
         return time.ToString("MM/dd/yyyy");
     }
-      
+
     private async void SendMessage()
     {
         if (!string.IsNullOrEmpty(messageText) && ProfileService.Profile != null && otherProfile != null)
         {
-            await chatRepositories.SendMessage(ProfileService.Profile.ProfileId, otherProfile.ProfileId, messageText);
+            string messageSent = messageText;
             messageText = string.Empty;
+            await chatRepositories.SendMessage(ProfileService.Profile.ProfileId, otherProfile.ProfileId, messageSent);
+            if (otherProfile.Bot)
+            {
+                string answerFromAI = await ChatGPTGetMessage(messageSent);
+                await chatRepositories.SendMessage(otherProfile.ProfileId, ProfileService.Profile.ProfileId, answerFromAI);
+            }
         }
     }
     private async Task UpdateOtherProfile()
@@ -184,7 +244,7 @@
         otherProfile = await ProfileService.GetProfileByProfileId(new Guid(otherProfileIdParameter!));
         if (otherProfile.ProfileImage != null)
         {
-            otherProfileImage += ImageUtils.ConvertProfileImageToSrcImage(otherProfile.ProfileImage);
+            otherProfileImage = ImageUtils.ConvertProfileImageToSrcImage(otherProfile.ProfileImage);
         }
     }
 }

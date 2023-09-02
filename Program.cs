@@ -4,6 +4,7 @@ using MudBlazor.Services;
 using NaughtyChoppersDA.Globals;
 using NaughtyChoppersDA.Repositories;
 using NaughtyChoppersDA.Services;
+using OpenAI.Net;
 
 namespace NaughtyChoppersDA
 {
@@ -17,6 +18,11 @@ namespace NaughtyChoppersDA
             builder.Services.AddRazorPages();
             builder.Services.AddMudServices();
             builder.Services.AddServerSideBlazor();
+
+            builder.Services.AddOpenAIServices(o =>
+            {
+                o.ApiKey = builder.Configuration["OpenAI:ApiKey"]; //ChatGPT API key value from secrets.json
+            });
 
             AccessToDb.ConnectionString = builder.Configuration.GetConnectionString("NaughtyChoppersDB");
 
